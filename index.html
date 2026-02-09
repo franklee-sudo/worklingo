@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worklingo - 私人职场英语助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-bg: #fdfdfc;
+            --accent: #1a1a1a;
+            --text-main: #333333;
+            --text-muted: #666666;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-main);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .magazine-fade-in {
+            animation: fadeIn 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.4s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #e5e5e5;
+            border-radius: 10px;
+        }
+
+        /* 模拟分析时的动态光束 */
+        .analyzing-bar {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            background-size: 200% 100%;
+            animation: slide 2s infinite linear;
+        }
+
+        @keyframes slide {
+            0% { background-position: -150% 0; }
+            100% { background-position: 150% 0; }
+        }
+
+        /* 隐藏 section 的逻辑 */
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-white/50 backdrop-blur-sm border-b border-gray-100">
+        <div class="text-2xl font-serif font-bold tracking-tighter cursor-pointer" onclick="showSection('home')">WORKLINGO.</div>
+        <div class="flex gap-8 text-sm font-medium">
+            <button onclick="showSection('library')" class="hover:text-black transition-colors">语料库</button>
+            <button onclick="showSection('import')" class="hover:text-black transition-colors">开始分析</button>
+            <button class="bg-black text-white px-4 py-1.5 rounded-full text-xs">登录</button>
+        </div>
+    </nav>
+
+    <!-- SECTION: HOME -->
+    <section id="home" class="page-section active pt-32 min-h-screen">
+        <div class="max-w-6xl mx-auto px-8">
+            <div class="magazine-fade-in">
+                <h1 class="text-7xl md:text-9xl font-serif leading-tight tracking-tighter">
+                    别再假装<br><span class="italic text-gray-400">学习了</span>
+                </h1>
+                <div class="mt-12 flex flex-col md:flex-row justify-between items-end">
+                    <p class="max-w-md text-xl text-gray-500 leading-relaxed font-light">
+                        拒绝无效的打卡和一万个词汇。Worklingo 帮你捕捉工作中真正发生的语料。将 Slack 对话、会议录音，转化为第二天就能上场的肌肉记忆。
+                    </p>
+                    <button onclick="showSection('import')" class="mt-8 md:mt-0 px-10 py-5 bg-black text-white rounded-full hover:scale-105 transition-transform">
+                        立即构建私人语料库 →
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-32 grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-gray-100 pt-16 magazine-fade-in" style="animation-delay: 0.2s">
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-gray-400">01. 场景优先</span>
+                    <h3 class="mt-4 text-2xl font-serif">Slack & Zoom</h3>
+                    <p class="mt-4 text-gray-500 leading-relaxed">不再学习通用的“商务英语”，只学习你和同事在讨论项目、报错、排期时的真实表达。</p>
+                </div>
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-gray-400">02. 深度整理</span>
+                    <h3 class="mt-4 text-2xl font-serif">结构化提取</h3>
+                    <p class="mt-4 text-gray-500 leading-relaxed">AI 自动识别沟通意图（Intent），并提供更高级的职场替代方案，打破表达瓶颈。</p>
+                </div>
+                <div>
+                    <span class="text-xs uppercase tracking-widest text-gray-400">03. 200核心</span>
+                    <h3 class="mt-4 text-2xl font-serif">少即是多</h3>
+                    <p class="mt-4 text-gray-500 leading-relaxed">抓住你工作中高频出现的 200 个表达，远比背诵一万个生僻单词更具杀伤力。</p>
+                </div>
+            </div>
+        </div>
+        <footer class="mt-32 py-12 text-center text-gray-300 text-xs tracking-widest">
+            © 2026 WORKLINGO. FOR THE PRAGMATISTS.
+        </footer>
+    </section>
+
+    <!-- SECTION: IMPORT -->
+    <section id="import" class="page-section pt-32 min-h-screen bg-[#f8f8f6]">
+        <div class="max-w-4xl mx-auto px-8">
+            <div class="text-center mb-16">
+                <span class="text-xs uppercase tracking-widest text-gray-400">Input Phase</span>
+                <h2 class="text-4xl font-serif mt-4">导入原始语料</h2>
+                <p class="text-gray-500 mt-2">粘贴 Slack 记录、邮件草稿或会议转写文本</p>
+            </div>
+
+            <div class="glass-card p-8 rounded-3xl">
+                <textarea id="rawInput" class="w-full h-64 bg-transparent border-none focus:ring-0 text-lg placeholder-gray-300 custom-scrollbar resize-none" placeholder="Hey, about the login bug, I think the API returns 500 error. Can you check when it can be fixed? We need this for the demo tomorrow."></textarea>
+                
+                <div class="mt-8 flex justify-between items-center">
+                    <div class="flex gap-2">
+                        <span class="px-3 py-1 bg-gray-100 rounded-full text-[10px] text-gray-400 uppercase">Text</span>
+                        <span class="px-3 py-1 bg-gray-100 rounded-full text-[10px] text-gray-400 uppercase">Slack</span>
+                    </div>
+                    <button onclick="analyzeText()" id="analyzeBtn" class="bg-black text-white px-8 py-3 rounded-full text-sm hover:opacity-80 transition-opacity">
+                        AI 提取与结构化
+                    </button>
+                </div>
+                <div id="loader" class="hidden mt-6">
+                    <div class="analyzing-bar"></div>
+                    <p class="text-center text-xs text-gray-400 mt-4 animate-pulse">正在深度分析语料场景与地道表达...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: RESULT -->
+    <section id="result" class="page-section pt-32 min-h-screen">
+        <div class="max-w-5xl mx-auto px-8 pb-20">
+            <div class="flex items-center gap-4 mb-12">
+                <button onclick="showSection('import')" class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50">←</button>
+                <h2 class="text-3xl font-serif">分析结果</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Left Sidebar: Meta -->
+                <div class="md:col-span-1 space-y-6">
+                    <div class="p-6 border border-gray-100 rounded-2xl">
+                        <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-4">Scene & Intent</h4>
+                        <div id="resScene" class="text-xl font-serif mb-2">-</div>
+                        <div id="resIntent" class="inline-block px-3 py-1 bg-black text-white text-[10px] rounded-full uppercase">-</div>
+                    </div>
+                    <div class="p-6 border border-gray-100 rounded-2xl">
+                        <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-4">Keywords</h4>
+                        <div id="resKeywords" class="flex flex-wrap gap-2 text-sm text-gray-600">
+                            <!-- Keywords will go here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Main: Content -->
+                <div class="md:col-span-2 space-y-8">
+                    <div class="p-8 bg-gray-50 rounded-3xl">
+                        <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-6">Key Expression (核心表达)</h4>
+                        <div id="resKeyExpression" class="text-2xl font-light italic text-gray-800 leading-relaxed mb-8">
+                            "..."
+                        </div>
+                        
+                        <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-4">Better Alternative (高级替代)</h4>
+                        <div id="resBetterAlternative" class="p-6 bg-white rounded-2xl border-l-4 border-black shadow-sm">
+                            <p class="text-lg text-black">-</p>
+                            <p class="text-xs text-gray-400 mt-2 font-light italic">💡 职场建议：使用这个短语会显得更加专业且有掌控感。</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button onclick="saveToLibrary()" class="flex-1 bg-black text-white py-4 rounded-2xl hover:opacity-90 transition-opacity">
+                            保存到我的语料库
+                        </button>
+                        <button onclick="showSection('import')" class="px-8 py-4 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors">
+                            丢弃
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: LIBRARY -->
+    <section id="library" class="page-section pt-32 min-h-screen">
+        <div class="max-w-6xl mx-auto px-8">
+            <div class="flex justify-between items-end mb-16">
+                <div>
+                    <h2 class="text-5xl font-serif">语料精选</h2>
+                    <p class="text-gray-400 mt-2 italic">你已经掌握了 200 个表达中的 12 个</p>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" placeholder="搜索场景..." class="px-4 py-2 border-b border-gray-200 focus:outline-none focus:border-black text-sm">
+                </div>
+            </div>
+
+            <div id="libraryContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Example Card -->
+                <div class="p-8 border border-gray-100 rounded-3xl hover:border-black transition-all cursor-pointer group">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400">Software Development</span>
+                        <span class="text-[10px] px-2 py-0.5 border border-gray-200 rounded text-gray-400">#BugFix</span>
+                    </div>
+                    <p class="text-xl font-light italic text-gray-800 leading-relaxed group-hover:text-black">"Can you check when it can be fixed? We need this for the demo tomorrow."</p>
+                    <div class="mt-8 flex justify-between items-center text-xs text-gray-400">
+                        <span>Better: "Could you provide an ETA for the fix?"</span>
+                        <span class="opacity-0 group-hover:opacity-100 transition-opacity underline">查看详情</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const apiKey = ""; // 执行环境自动注入
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'worklingo-demo';
+
+        let currentAnalysis = null;
+        let library = [
+            {
+                scene: "项目管理 / 排期讨论",
+                intent: "询问进度",
+                expression: "Can you check when it can be fixed?",
+                alternative: "Could you provide an ETA for the fix?",
+                keywords: ["ETA", "fixed", "demo"]
+            }
+        ];
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            const target = document.getElementById(sectionId);
+            target.classList.add('active');
+            window.scrollTo(0, 0);
+
+            if (sectionId === 'library') {
+                renderLibrary();
+            }
+        }
+
+        async function analyzeText() {
+            const input = document.getElementById('rawInput').value.trim();
+            if (!input) return;
+
+            const btn = document.getElementById('analyzeBtn');
+            const loader = document.getElementById('loader');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+            loader.classList.remove('hidden');
+
+            const systemPrompt = `你是一个资深的职场英语导师。请分析用户输入的工作沟通记录。
+            1. 识别场景(Scene)和意图(Intent)。
+            2. 提取核心原话(Key Expression)。
+            3. 提供一个更地道、更职场化的备选表达(Better Alternative)。
+            4. 提取关键词(Keywords)。
+            以 JSON 格式返回，包含字段: scene, intent, keyExpression, betterAlternative, keywords (数组)。`;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: input }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                const data = await response.json();
+                const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                const result = JSON.parse(resultText);
+
+                currentAnalysis = result;
+                displayResult(result);
+                showSection('result');
+            } catch (error) {
+                console.error("AI Analysis failed:", error);
+                // Fallback for demo
+                const fallback = {
+                    scene: "日常工作沟通 / 技术讨论",
+                    intent: "寻求支持",
+                    keyExpression: input.length > 50 ? input.substring(0, 50) + "..." : input,
+                    betterAlternative: "Could you please assist with this inquiry at your earliest convenience?",
+                    keywords: ["assistance", "ASAP"]
+                };
+                displayResult(fallback);
+                showSection('result');
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50');
+                loader.classList.add('hidden');
+            }
+        }
+
+        function displayResult(res) {
+            document.getElementById('resScene').innerText = res.scene || "通用职场";
+            document.getElementById('resIntent').innerText = res.intent || "交流意图";
+            document.getElementById('resKeyExpression').innerText = `"${res.keyExpression}"`;
+            document.getElementById('resBetterAlternative').querySelector('p').innerText = res.betterAlternative;
+            
+            const kwContainer = document.getElementById('resKeywords');
+            kwContainer.innerHTML = '';
+            (res.keywords || []).forEach(kw => {
+                const span = document.createElement('span');
+                span.className = 'px-3 py-1 bg-gray-100 rounded-full';
+                span.innerText = kw;
+                kwContainer.appendChild(span);
+            });
+        }
+
+        function saveToLibrary() {
+            if (currentAnalysis) {
+                library.unshift({
+                    scene: currentAnalysis.scene,
+                    intent: currentAnalysis.intent,
+                    expression: currentAnalysis.keyExpression,
+                    alternative: currentAnalysis.betterAlternative,
+                    keywords: currentAnalysis.keywords
+                });
+                showSection('library');
+            }
+        }
+
+        function renderLibrary() {
+            const container = document.getElementById('libraryContainer');
+            container.innerHTML = library.map(item => `
+                <div class="p-8 border border-gray-100 rounded-3xl hover:border-black transition-all cursor-pointer group">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400">${item.scene}</span>
+                        <span class="text-[10px] px-2 py-0.5 border border-gray-200 rounded text-gray-400">#${item.intent}</span>
+                    </div>
+                    <p class="text-xl font-light italic text-gray-800 leading-relaxed group-hover:text-black">"${item.expression}"</p>
+                    <div class="mt-8 border-t border-gray-50 pt-6">
+                        <p class="text-sm font-medium text-black">地道建议: ${item.alternative}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize view
+        window.onload = () => {
+            showSection('home');
+            renderLibrary();
+        };
+    </script>
+</body>
+</html>
