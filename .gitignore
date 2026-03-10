@@ -3,3 +3,5 @@ node_modules/
 .env
 worklingo.db
 __pycache__/
+worklingo.db
+__pycache__/
