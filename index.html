@@ -85,7 +85,7 @@
         <div class="flex gap-8 text-sm font-medium">
             <button onclick="showSection('library')" class="hover:text-black transition-colors">语料库</button>
             <button onclick="showSection('import')" class="hover:text-black transition-colors">开始分析</button>
-            <button class="bg-black text-white px-4 py-1.5 rounded-full text-xs">登录</button>
+            <button id="navLoginBtn" onclick="showSection('auth')" class="bg-black text-white px-4 py-1.5 rounded-full text-xs">登录</button>
         </div>
     </nav>
 
@@ -100,7 +100,7 @@
                     <p class="max-w-md text-xl text-gray-500 leading-relaxed font-light">
                         拒绝无效的打卡和一万个词汇。Worklingo 帮你捕捉工作中真正发生的语料。将 Slack 对话、会议录音，转化为第二天就能上场的肌肉记忆。
                     </p>
-                    <button onclick="showSection('import')" class="mt-8 md:mt-0 px-10 py-5 bg-black text-white rounded-full hover:scale-105 transition-transform">
+                    <button onclick="checkAuthAndStart()" class="mt-8 md:mt-0 px-10 py-5 bg-black text-white rounded-full hover:scale-105 transition-transform">
                         立即构建私人语料库 →
                     </button>
                 </div>
@@ -240,11 +240,50 @@
         </div>
     </section>
 
+    <!-- SECTION: AUTH -->
+    <section id="auth" class="page-section pt-32 min-h-screen bg-[#f8f8f6]">
+        <div class="max-w-md mx-auto px-8">
+            <div class="glass-card p-10 rounded-3xl text-center">
+                <h2 id="authTitle" class="text-3xl font-serif mb-2">Welcome Back</h2>
+                <p class="text-gray-400 text-xs tracking-widest uppercase mb-8">Worklingo for Pragmatists</p>
+
+                <div class="space-y-4">
+                    <input type="email" id="authEmail" placeholder="Email Address" class="w-full px-6 py-4 bg-gray-50 rounded-xl border border-transparent focus:border-black focus:bg-white transition-all outline-none text-sm">
+                    <input type="password" id="authPassword" placeholder="Password" class="w-full px-6 py-4 bg-gray-50 rounded-xl border border-transparent focus:border-black focus:bg-white transition-all outline-none text-sm">
+                </div>
+
+                <button id="authBtn" onclick="handleAuth()" class="w-full mt-8 bg-black text-white py-4 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity">
+                    Sign In
+                </button>
+
+                <p class="mt-6 text-xs text-gray-400">
+                    <span id="authSwitchText">Don't have an account?</span> 
+                    <a href="#" onclick="toggleAuthMode()" id="authToggleLink" class="text-black underline">Create one</a>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity" onclick="closeDeleteModal()"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-6 bg-white rounded-2xl shadow-2xl transform transition-all scale-100">
+            <h3 class="text-xl font-serif mb-2">Confirm Deletion</h3>
+            <p class="text-gray-500 text-sm mb-6">Are you sure you want to remove this record? This action cannot be undone.</p>
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm hover:bg-gray-50 transition-colors">Cancel</button>
+                <button onclick="confirmDelete()" id="confirmDeleteBtn" class="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl text-sm hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const apiKey = ""; // 执行环境自动注入
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'worklingo-demo';
 
         let currentAnalysis = null;
+        let deleteTargetId = null; // Store ID for deletion
+
         let library = [
             {
                 scene: "项目管理 / 排期讨论",
@@ -266,6 +305,11 @@
             if (sectionId === 'library') {
                 renderLibrary();
             }
+
+            // Auto-clear input when entering Import section
+            if (sectionId === 'import') {
+                document.getElementById('rawInput').value = '';
+            }
         }
 
         async function analyzeText() {
@@ -279,40 +323,35 @@
             btn.classList.add('opacity-50');
             loader.classList.remove('hidden');
 
-            const systemPrompt = `你是一个资深的职场英语导师。请分析用户输入的工作沟通记录。
-            1. 识别场景(Scene)和意图(Intent)。
-            2. 提取核心原话(Key Expression)。
-            3. 提供一个更地道、更职场化的备选表达(Better Alternative)。
-            4. 提取关键词(Keywords)。
-            以 JSON 格式返回，包含字段: scene, intent, keyExpression, betterAlternative, keywords (数组)。`;
-
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                // Call local backend API which proxies to DeepSeek
+                const response = await fetch('/api/analyze', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: input }] }],
-                        systemInstruction: { parts: [{ text: systemPrompt }] },
-                        generationConfig: { responseMimeType: "application/json" }
-                    })
+                    body: JSON.stringify({ text: input })
                 });
 
-                const data = await response.json();
-                const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                const result = JSON.parse(resultText);
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'API Request failed');
+                }
+
+                const result = await response.json();
 
                 currentAnalysis = result;
                 displayResult(result);
                 showSection('result');
             } catch (error) {
                 console.error("AI Analysis failed:", error);
-                // Fallback for demo
+                alert("AI 分析失败: " + error.message + "\n\n请检查后台是否配置了 API Key，或者使用默认演示数据。");
+                
+                // Fallback for demo if API fails
                 const fallback = {
-                    scene: "日常工作沟通 / 技术讨论",
+                    scene: "演示模式 / 接口未配置",
                     intent: "寻求支持",
                     keyExpression: input.length > 50 ? input.substring(0, 50) + "..." : input,
                     betterAlternative: "Could you please assist with this inquiry at your earliest convenience?",
-                    keywords: ["assistance", "ASAP"]
+                    keywords: ["assistance", "ASAP", "demo"]
                 };
                 displayResult(fallback);
                 showSection('result');
@@ -339,39 +378,188 @@
             });
         }
 
-        function saveToLibrary() {
-            if (currentAnalysis) {
-                library.unshift({
-                    scene: currentAnalysis.scene,
-                    intent: currentAnalysis.intent,
-                    expression: currentAnalysis.keyExpression,
-                    alternative: currentAnalysis.betterAlternative,
-                    keywords: currentAnalysis.keywords
+        async function saveToLibrary() {
+            if (!currentAnalysis) return;
+            
+            const btn = document.querySelector('button[onclick="saveToLibrary()"]');
+            const originalText = btn.innerText;
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+
+            try {
+                const rawInput = document.getElementById('rawInput').value;
+                const response = await fetch('/api/save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        raw_content: rawInput,
+                        analysis: currentAnalysis
+                    })
                 });
+                
+                if (!response.ok) throw new Error("Save failed");
+                
+                // Reload library to get fresh data from DB
+                await loadLibrary();
                 showSection('library');
+            } catch (error) {
+                console.error("Save error:", error);
+                alert("保存失败，请重试");
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function loadLibrary() {
+            try {
+                const response = await fetch('/api/library');
+                if (!response.ok) throw new Error("Load failed");
+                library = await response.json();
+                renderLibrary();
+            } catch (error) {
+                console.error("Load library error:", error);
             }
         }
 
         function renderLibrary() {
             const container = document.getElementById('libraryContainer');
+            if (library.length === 0) {
+                container.innerHTML = `<div class="col-span-2 text-center text-gray-400 py-10">暂无语料，快去添加吧</div>`;
+                return;
+            }
             container.innerHTML = library.map(item => `
-                <div class="p-8 border border-gray-100 rounded-3xl hover:border-black transition-all cursor-pointer group">
-                    <div class="flex justify-between items-start mb-6">
+                <div class="p-8 border border-gray-100 rounded-3xl hover:border-black transition-all group relative">
+                    <button onclick="openDeleteModal(${item.id}, event)" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10" title="删除">
+                        ×
+                    </button>
+                    <div class="flex justify-between items-start mb-6 pr-8">
                         <span class="text-[10px] uppercase tracking-widest text-gray-400">${item.scene}</span>
                         <span class="text-[10px] px-2 py-0.5 border border-gray-200 rounded text-gray-400">#${item.intent}</span>
                     </div>
                     <p class="text-xl font-light italic text-gray-800 leading-relaxed group-hover:text-black">"${item.expression}"</p>
-                    <div class="mt-8 border-t border-gray-50 pt-6">
-                        <p class="text-sm font-medium text-black">地道建议: ${item.alternative}</p>
+                    <div class="mt-8 flex justify-between items-center text-xs text-gray-400">
+                        <span>Better: "${item.alternative}"</span>
                     </div>
                 </div>
             `).join('');
         }
 
+        // Modal Logic
+        function openDeleteModal(id, event) {
+            event.stopPropagation();
+            deleteTargetId = id;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            deleteTargetId = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        async function confirmDelete() {
+            if (!deleteTargetId) return;
+
+            const btn = document.getElementById('confirmDeleteBtn');
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = 'Deleting...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`/api/library/${deleteTargetId}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) {
+                    throw new Error("Delete failed");
+                }
+
+                // Remove from local array
+                library = library.filter(item => item.id !== deleteTargetId);
+                renderLibrary();
+                closeDeleteModal();
+
+            } catch (error) {
+                console.error("Delete error:", error);
+                alert("删除失败，请重试");
+            } finally {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }
+        }
+
+        // Auth Logic
+        let isLoginMode = true;
+        let currentUser = null;
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('authTitle').innerText = isLoginMode ? "Welcome Back" : "Join Worklingo";
+            document.getElementById('authBtn').innerText = isLoginMode ? "Sign In" : "Create Account";
+            document.getElementById('authSwitchText').innerText = isLoginMode ? "Don't have an account?" : "Already have an account?";
+            document.getElementById('authToggleLink').innerText = isLoginMode ? "Create one" : "Sign In";
+        }
+
+        async function handleAuth() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const btn = document.getElementById('authBtn');
+            const originalText = btn.innerText;
+
+            if (!email || !password) {
+                alert("Please enter both email and password");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Processing...";
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    currentUser = data.user;
+                    
+                    // Update UI
+                    const navBtn = document.getElementById('navLoginBtn');
+                    navBtn.innerText = currentUser.name;
+                    navBtn.onclick = null;
+                    navBtn.classList.remove('bg-black', 'text-white');
+                    navBtn.classList.add('text-black', 'font-bold');
+                    
+                    showSection('home');
+                    alert("Login Successful!");
+                } else {
+                    alert(data.error || "Login failed");
+                }
+            } catch (e) {
+                console.error("Login error", e);
+                alert("Login error: " + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        }
+
+        function checkAuthAndStart() {
+            if (currentUser) {
+                showSection('import');
+            } else {
+                alert("Please login first to build your corpus.");
+                showSection('auth');
+            }
+        }
+
         // Initialize view
         window.onload = () => {
             showSection('home');
-            renderLibrary();
+            loadLibrary(); // Load from DB on start
         };
     </script>
 </body>
