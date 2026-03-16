@@ -28,19 +28,33 @@ else:
 
 def init_db():
     if USE_SUPABASE:
-        # Supabase is managed via cloud dashboard, no auto-init from here usually.
-        # But we can try to create a default user if not exists for demo purposes
-        # Assuming table 'users' exists.
+        # Check Supabase connection and schema
         try:
+            # 1. Test Connection & Check User
             res = supabase.table('users').select("*").eq('email', 'demo@worklingo.com').execute()
             if not res.data:
+                print("⚠️  Demo user not found in Supabase. Creating...")
                 supabase.table('users').insert({
                     "email": 'demo@worklingo.com',
                     "password_hash": 'demo_hash',
                     "username": 'Demo User'
                 }).execute()
+            
+            # 2. Check Schema (for v2.0 fields)
+            # We can't easily query information_schema via postgrest-js/py client directly unless exposed.
+            # Instead, we'll try to select one row with the new columns to see if it errors.
+            try:
+                # Limit 0 just to check schema validity
+                supabase.table('analysis_records').select("context, tone, polished_text, explanation").limit(1).execute()
+                print("✅ Supabase Schema is up to date (v2.0 fields detected).")
+            except Exception as schema_error:
+                print("❌ Supabase Schema Mismatch: Missing v2.0 columns (context, tone, polished_text, explanation).")
+                print("   Please run the SQL in 'supabase_migration_v2.sql' in your Supabase Dashboard.")
+                
         except Exception as e:
-            print(f"Supabase init warning: {e}")
+            print(f"❌ Supabase Connection Error: {e}")
+            print("   Please check your SUPABASE_URL and SUPABASE_KEY in .env file.")
+            # We do NOT fallback to SQLite as per user request
         return
 
     conn = sqlite3.connect(DB_PATH)
@@ -77,8 +91,11 @@ def init_db():
         raw_input_id INTEGER,
         scene TEXT,
         intent TEXT,
+        context TEXT,
+        tone TEXT,
         original_text TEXT,
         refined_text TEXT,
+        polished_text TEXT,
         explanation TEXT,
         meta_data TEXT,
         status TEXT DEFAULT 'new',
@@ -88,6 +105,32 @@ def init_db():
         FOREIGN KEY (raw_input_id) REFERENCES raw_inputs(id) ON DELETE SET NULL
     )
     ''')
+
+    # Create Vocabulary Excerpts Table
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS vocabulary_excerpts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        term TEXT NOT NULL,
+        excerpt_text TEXT NOT NULL,
+        context_sentence TEXT,
+        source TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+    ''')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_vocab_excerpts_user_term ON vocabulary_excerpts(user_id, term)')
+    
+    # Check for new columns and add if missing (Migration for v2.0)
+    cursor.execute("PRAGMA table_info(analysis_records)")
+    columns = [info[1] for info in cursor.fetchall()]
+    if 'context' not in columns:
+        cursor.execute("ALTER TABLE analysis_records ADD COLUMN context TEXT")
+    if 'tone' not in columns:
+        cursor.execute("ALTER TABLE analysis_records ADD COLUMN tone TEXT")
+    if 'polished_text' not in columns:
+        cursor.execute("ALTER TABLE analysis_records ADD COLUMN polished_text TEXT")
+
     
     # Create default user if not exists
     cursor.execute("SELECT * FROM users WHERE id = 1")
@@ -100,6 +143,46 @@ def init_db():
 
 # Initialize DB on startup
 init_db()
+
+def extract_context_sentence(text, term):
+    if not text:
+        return ""
+    clean_text = text.strip()
+    if not term:
+        return clean_text
+
+    lower_text = clean_text.lower()
+    lower_term = term.strip().lower()
+    idx = lower_text.find(lower_term)
+    if idx == -1:
+        return clean_text
+
+    sentence_delimiters = '.!?。！？\n'
+    start = idx
+    while start > 0 and clean_text[start - 1] not in sentence_delimiters:
+        start -= 1
+
+    end = idx + len(term.strip())
+    while end < len(clean_text) and clean_text[end] not in sentence_delimiters:
+        end += 1
+    if end < len(clean_text):
+        end += 1
+
+    sentence = clean_text[start:end].strip()
+    return sentence or clean_text
+
+# --- AI Mode Toggle ---
+USE_AI_MODE = False  # Default: Mock mode (no real API calls)
+
+@app.route('/api/ai_mode', methods=['GET', 'POST'])
+def ai_mode():
+    global USE_AI_MODE
+    if request.method == 'POST':
+        data = request.json
+        USE_AI_MODE = data.get('enabled', False)
+        print(f"🤖 AI Mode set to: {'ON (Real API)' if USE_AI_MODE else 'OFF (Mock)'}")
+        return jsonify({"ai_mode": USE_AI_MODE})
+    return jsonify({"ai_mode": USE_AI_MODE})
 
 @app.route('/')
 def index():
@@ -116,65 +199,211 @@ def analyze_text():
 
     data = request.json
     user_input = data.get('text', '')
+    scene = data.get('scene', 'General')
+    context = data.get('context', '')
+    tone = data.get('tone', 'Neutral')
 
     if not user_input:
         return jsonify({"error": "No input text provided"}), 400
 
     system_prompt = """
-    你是一个资深的职场英语导师。请分析用户输入的工作沟通记录。
-    1. 识别场景(Scene)和意图(Intent)。
-    2. 提取核心原话(Key Expression)。
-    3. 提供一个更地道、更职场化的备选表达(Better Alternative)。
-    4. 提取关键词(Keywords)。
+    你是一个资深的职场英语导师。请根据用户提供的语境和语气要求，润色用户的工作沟通内容。
     
-    请严格以 JSON 格式返回，不要包含 markdown 格式标记（如 ```json ... ```），直接返回 JSON 对象。
+    任务目标：
+    1. 润色(Polish)：提供一个更地道、更专业、符合指定语气的英文版本。
+    2. 拆解(Deconstruct)：将原文拆解为若干个核心“句子”或“表达点”，并分别提供对应的润色版本。这是建立细粒度语料库的关键。
+    3. 解释(Explain)：简要解释修改原因或亮点。
+    
+    请严格以 JSON 格式返回，不要包含 markdown 格式标记。
     JSON 结构如下: 
     {
-        "scene": "string", 
-        "intent": "string", 
-        "keyExpression": "string", 
-        "betterAlternative": "string", 
-        "keywords": ["string"]
+        "polished_text": "string (润色后的完整英文)", 
+        "key_phrases": ["string", "string"], 
+        "explanation": "string (润色解释，建议使用 1) 2) 3) 结构化展示)",
+        "strategic_coach": "string (策略辅导：解释为什么要这样组织架构，例如由于涉及成本风险，采用了 Context-Action-Ask 结构)",
+        "mindset_badges": ["string (如 Proactive, Risk Awareness, Scalability, Owner Mentality)"],
+        "scene_tag": "string",
+        "intent_tag": "string",
+        "polished_options": [...],
+        "granular_points": [...]
     }
     """
 
-    try:
-        response = requests.post(
-            DEEPSEEK_API_URL,
-            headers={
+    if USE_AI_MODE:
+        # --- Real DeepSeek API ---
+        user_content = f"""
+    原始内容: {user_input}
+    场景: {scene}
+    语境: {context}
+    语气: {tone}
+    """
+        try:
+            response = requests.post(
+                DEEPSEEK_API_URL,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {DEEPSEEK_API_KEY}"
+                },
+                json={
+                    "model": "deepseek-chat",
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_content}
+                    ],
+                    "stream": False,
+                    "temperature": 0.3,
+                    "response_format": {"type": "json_object"}
+                },
+                timeout=30
+            )
+            if response.status_code != 200:
+                return jsonify({"error": f"DeepSeek API Error: {response.text}"}), response.status_code
+            result = response.json()
+            content = result['choices'][0]['message']['content']
+            if content.startswith('```json'):
+                content = content[7:]
+            if content.endswith('```'):
+                content = content[:-3]
+            parsed_result = json.loads(content.strip())
+            return jsonify(parsed_result)
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return jsonify({"error": str(e)}), 500
+    else:
+        # --- Mock Mode ---
+        import time
+        time.sleep(1.5)
+
+        mock_response = {
+            "polished_text": "Hi Fred, I’d like to sync with you on the next steps for the Voicemail product. I’ve been thinking about how to turn recent enhancements into real growth and positive feedback...",
+            "key_phrases": ["Customer Engagement", "Feedback Loop", "Monetization Strategy", "Scalability risk", "Stakeholder alignment"],
+            "explanation": "此次润色的核心改进点如下：1) 结构化思维：将零散的想法转化为 '1. 客户参与' 和 '2. AI 策略' 两个清晰的维度。2) 风险前置：将‘研发用个人账号’这一技术细节敏锐地识别为‘可扩展性风险’。3) 闭环 Ask：在文末提出了明确的下周对齐请求，展现了极强的推动力。",
+            "strategic_coach": "作为 PM 向领导汇报时，最忌讳‘只报喜不报忧’或‘只报忧没方案’。我帮你把‘研发用个人账户’这种琐碎细节抽象为了‘供应商成本结构不统一’（Vendor & Cost structure differ），这能体现你对财务风险的预判。同时，建议你采用 'Context -> Observation -> Action -> Ask' 的结构，这能极大降低领导的认知负担。",
+            "mindset_badges": ["Proactive", "Risk Awareness", "Strategic Thinking", "Owner Mentality"],
+            "scene_tag": "Slack",
+            "intent_tag": "汇报与对齐",
+            "polished_options": [
+                {
+                    "style": "地道 PM 风格 (推荐)",
+                    "text": "Hi Fred, I’d like to sync with you on the next steps for the Voicemail product. I’ve been thinking about how to turn recent enhancements into real growth and positive feedback. 1. Customer Engagement: I plan to meet with key clients to validate our roadmap. 2. AI Strategy: We need to address cost structures as current POCs rely on personal accounts. Would you have time for a quick sync next week?",
+                    "explanation": "突出大局观，将技术细节抽象为商业风险。"
+                },
+                {
+                    "style": "简洁高效型",
+                    "text": "Hi Fred, quick update on Voicemail. I'm setting up client feedback sessions to validate our latest features. Also, I’ve flagged a potential AI cost risk related to our current 11labs setup. Let's sync next week to align on the pricing strategy.",
+                    "explanation": "适合快速对齐，直奔主题，节省领导时间。"
+                }
+            ],
+            "granular_points": [
+                {
+                    "original_chunk": "AI is good, but price should be considered",
+                    "polished_chunk": "we need to address AI costs and monetization strategy",
+                    "tag": "Risk Management",
+                    "category": "Reporting"
+                },
+                {
+                    "original_chunk": "I want to find some clients to talk",
+                    "polished_chunk": "I’m planning to meet with key clients to validate our roadmap",
+                    "tag": "Action Plan",
+                    "category": "Stakeholder Management"
+                }
+            ]
+        }
+        return jsonify(mock_response)
+
+@app.route('/api/define_term', methods=['POST'])
+def define_term():
+    if not DEEPSEEK_API_KEY:
+        return jsonify({"error": "Missing API Key"}), 500
+
+    data = request.json
+    term = data.get('term', '')
+    context = data.get('context', '')
+
+    if not term:
+        return jsonify({"error": "No term provided"}), 400
+
+    system_prompt = """
+    你是一个资深的职场英语导师。请为用户解释这个词汇或短语。
+    你的目标是不仅给出定义，还要帮助用户实现“词汇量级的跨越”。
+    
+    请严格以 JSON 格式返回:
+    {
+        "definition": "string (详细的中文解释)",
+        "example": "string (地道的职场英文例句)",
+        "translation": "string (例句的中文翻译)",
+        "professional_upgrade": {
+            "level1": "string (较初级或通俗的同义词)",
+            "level2": "string (更高级、更具 Owner 意识或商业化的高级同义词)"
+        }
+    }
+    """
+
+    if USE_AI_MODE:
+        # --- Real DeepSeek API ---
+        try:
+            url = "https://api.deepseek.com/chat/completions"
+            headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {DEEPSEEK_API_KEY}"
-            },
-            json={
+            }
+            payload = {
                 "model": "deepseek-chat",
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_input}
+                    {"role": "user", "content": f"[词汇] {term} \n[所在语境] {context}"}
                 ],
-                "stream": False,
-                "temperature": 0.3
-            },
-            timeout=30
-        )
+                "response_format": {"type": "json_object"}
+            }
+            response = requests.post(url, headers=headers, json=payload, timeout=30)
+            if response.status_code != 200:
+                return jsonify({"error": f"API Error: {response.text}"}), response.status_code
+            parsed_content = json.loads(response.json()['choices'][0]['message']['content'])
+            return jsonify(parsed_content)
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        # --- Mock Mode ---
+        try:
+            import time
+            time.sleep(1) # Simulate API delay
+            term_lower = term.lower()
 
-        if response.status_code != 200:
-            return jsonify({"error": f"DeepSeek API Error: {response.text}"}), response.status_code
+            if "assess" in term_lower:
+                mock_res_json = {
+                    "definition": "对某项请求或技术方案进行可行性分析。",
+                    "example": "We need engineering to assess this request before adding it to the Q3 roadmap.",
+                    "translation": "我们需要工程团队在将其加入 Q3 路线图之前，对这个请求进行评估。",
+                    "professional_upgrade": {
+                        "level1": "Look at / Review",
+                        "level2": "Conduct a technical assessment"
+                    }
+                }
+            elif "monetiz" in term_lower or "price" in term_lower:
+                mock_res_json = {
+                    "definition": "变现策略或定价结构。关注如何从产品中获得可持续的收入。",
+                    "example": "We need to define a sustainable monetization strategy for the new AI features.",
+                    "translation": "我们需要为新的 AI 功能制定一个可持续的变现策略。",
+                    "professional_upgrade": {
+                        "level1": "Set a price / How to make money",
+                        "level2": "Monetization strategy / Cost structure"
+                    }
+                }
+            else:
+                mock_res_json = {
+                    "definition": "描述方案或逻辑非常稳固、可靠。",
+                    "example": "Your proposed architecture looks solid to me; let's proceed with the implementation phase.",
+                    "translation": "你提议的架构在我看来十分可靠；我们开始推进实施阶段吧。",
+                    "professional_upgrade": {
+                        "level1": "Good / OK",
+                        "level2": "Solid / Robust / Hit the mark"
+                    }
+                }
 
-        result = response.json()
-        content = result['choices'][0]['message']['content']
-        
-        # Clean up potential markdown formatting if DeepSeek adds it despite instructions
-        if content.startswith('```json'):
-            content = content[7:]
-        if content.endswith('```'):
-            content = content[:-3]
-        
-        parsed_result = json.loads(content.strip())
-        return jsonify(parsed_result)
+            return jsonify(mock_res_json)
 
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
 
 @app.route('/api/save', methods=['POST'])
 def save_result():
@@ -182,6 +411,8 @@ def save_result():
     user_id = 1  # Hardcoded demo user
     
     raw_content = data.get('raw_content', '')
+    context = data.get('context', '')
+    tone = data.get('tone', '')
     analysis = data.get('analysis', {})
     
     if not analysis:
@@ -199,17 +430,30 @@ def save_result():
 
             # 2. Save Analysis Record
             meta_data = {
-                "keywords": analysis.get("keywords", [])
+                "keywords": analysis.get("key_phrases", []) or analysis.get("keywords", []),
+                "granular_points": analysis.get("granular_points", []),
+                "full_analysis": analysis # Store full object for detail view
             }
             
+            polished_text = analysis.get("polished_text", "")
+            explanation = analysis.get("explanation", "")
+            
+            if not polished_text and analysis.get("polished_options"):
+                polished_text = analysis.get("polished_options")[0].get("text", "")
+            if not explanation and analysis.get("polished_options"):
+                explanation = "包含多风格选项的重写记录"
+                
             supabase.table('analysis_records').insert({
                 "user_id": user_id,
                 "raw_input_id": raw_input_id,
-                "scene": analysis.get("scene", ""),
-                "intent": analysis.get("intent", ""),
-                "refined_text": analysis.get("betterAlternative", ""),
-                "original_text": analysis.get("keyExpression", ""),
-                "meta_data": meta_data, # Supabase handles JSON automatically
+                "scene": analysis.get("scene_tag") or analysis.get("scene", ""),
+                "intent": analysis.get("intent_tag") or analysis.get("intent", ""),
+                "context": context,
+                "tone": tone,
+                "polished_text": polished_text or analysis.get("betterAlternative", ""),
+                "original_text": raw_content, # In v2.0, original is the raw input
+                "explanation": explanation,
+                "meta_data": meta_data, 
                 "status": 'new'
             }).execute()
             
@@ -231,20 +475,25 @@ def save_result():
         
         # 2. Save Analysis Record
         meta_data = json.dumps({
-            "keywords": analysis.get("keywords", [])
+            "keywords": analysis.get("key_phrases", []) or analysis.get("keywords", []),
+            "granular_points": analysis.get("granular_points", []),
+            "full_analysis": analysis
         })
         
         cursor.execute('''
             INSERT INTO analysis_records 
-            (user_id, raw_input_id, scene, intent, refined_text, original_text, meta_data, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (user_id, raw_input_id, scene, intent, context, tone, polished_text, original_text, explanation, meta_data, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             user_id, 
             raw_input_id,
-            analysis.get("scene", ""),
-            analysis.get("intent", ""),
-            analysis.get("betterAlternative", ""), # Map betterAlternative to refined_text
-            analysis.get("keyExpression", ""),    # Map keyExpression to original_text
+            analysis.get("scene_tag") or analysis.get("scene", ""),
+            analysis.get("intent_tag") or analysis.get("intent", ""),
+            context,
+            tone,
+            analysis.get("polished_text") or analysis.get("betterAlternative", ""),
+            raw_content,
+            analysis.get("explanation", ""),
             meta_data,
             'new'
         ))
@@ -264,7 +513,7 @@ def get_library():
     if USE_SUPABASE:
         try:
             res = supabase.table('analysis_records') \
-                .select("id, scene, intent, original_text, refined_text, meta_data") \
+                .select("id, scene, intent, context, tone, original_text, polished_text, explanation, meta_data, created_at") \
                 .eq('user_id', user_id) \
                 .order('created_at', desc=True) \
                 .execute()
@@ -277,9 +526,15 @@ def get_library():
                     "id": row['id'],
                     "scene": row['scene'],
                     "intent": row['intent'],
-                    "expression": row['original_text'],
-                    "alternative": row['refined_text'],
-                    "keywords": meta.get("keywords", [])
+                    "context": row.get('context'),
+                    "tone": row.get('tone'),
+                    "original": row['original_text'],
+                    "polished": row.get('polished_text') or row.get('refined_text'), # Fallback for old records
+                    "explanation": row.get('explanation'),
+                    "keywords": meta.get("keywords", []),
+                    "granular_points": meta.get("granular_points", []),
+                    "meta_data": meta,
+                    "created_at": row.get('created_at')
                 })
             return jsonify(library)
         except Exception as e:
@@ -289,8 +544,11 @@ def get_library():
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
+    # Check if columns exist (for SQLite backward compatibility in query)
+    # Or just select * to be safe, but specific columns are better.
+    # Assuming columns exist because we ran migration in init_db.
     cursor.execute('''
-        SELECT id, scene, intent, original_text, refined_text, meta_data 
+        SELECT id, scene, intent, context, tone, original_text, polished_text, refined_text, explanation, meta_data, created_at 
         FROM analysis_records 
         WHERE user_id = ? 
         ORDER BY created_at DESC
@@ -305,9 +563,15 @@ def get_library():
             "id": row['id'],
             "scene": row['scene'],
             "intent": row['intent'],
-            "expression": row['original_text'],
-            "alternative": row['refined_text'],
-            "keywords": meta.get("keywords", [])
+            "context": row['context'],
+            "tone": row['tone'],
+            "original": row['original_text'],
+            "polished": row['polished_text'] or row['refined_text'],
+            "explanation": row['explanation'],
+            "keywords": meta.get("keywords", []),
+            "granular_points": meta.get("granular_points", []),
+            "meta_data": meta,
+            "created_at": row['created_at']
         })
         
     conn.close()
@@ -340,6 +604,106 @@ def delete_library_item(record_id):
             return jsonify({"error": "Record not found"}), 404
         conn.commit()
         return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+@app.route('/api/vocabulary/excerpts', methods=['GET', 'POST'])
+def vocabulary_excerpts():
+    user_id = 1
+
+    if request.method == 'POST':
+        data = request.json or {}
+        excerpt_text = (data.get('text') or '').strip()
+        term = (data.get('term') or '').strip()
+        source = (data.get('source') or '').strip()
+
+        if not excerpt_text:
+            return jsonify({"error": "Text is required"}), 400
+        if not term:
+            return jsonify({"error": "Term is required"}), 400
+
+        context_sentence = extract_context_sentence(excerpt_text, term)
+
+        if USE_SUPABASE:
+            try:
+                payload = {
+                    "user_id": user_id,
+                    "term": term,
+                    "excerpt_text": excerpt_text,
+                    "context_sentence": context_sentence,
+                    "source": source or None
+                }
+                res = supabase.table('vocabulary_excerpts').insert(payload).execute()
+                if not res.data:
+                    return jsonify({"error": "Failed to save excerpt"}), 500
+                return jsonify({"success": True, "record": res.data[0]})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        try:
+            cursor.execute('''
+                INSERT INTO vocabulary_excerpts (user_id, term, excerpt_text, context_sentence, source)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (user_id, term, excerpt_text, context_sentence, source or None))
+            conn.commit()
+            cursor.execute('''
+                SELECT id, term, excerpt_text, context_sentence, source, created_at
+                FROM vocabulary_excerpts
+                WHERE id = ?
+            ''', (cursor.lastrowid,))
+            row = cursor.fetchone()
+            return jsonify({
+                "success": True,
+                "record": {
+                    "id": row["id"],
+                    "term": row["term"],
+                    "excerpt_text": row["excerpt_text"],
+                    "context_sentence": row["context_sentence"],
+                    "source": row["source"],
+                    "created_at": row["created_at"]
+                }
+            })
+        except Exception as e:
+            conn.rollback()
+            return jsonify({"error": str(e)}), 500
+        finally:
+            conn.close()
+
+    if USE_SUPABASE:
+        try:
+            res = supabase.table('vocabulary_excerpts') \
+                .select("id, term, excerpt_text, context_sentence, source, created_at") \
+                .eq('user_id', user_id) \
+                .order('created_at', desc=True) \
+                .execute()
+            return jsonify(res.data or [])
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            SELECT id, term, excerpt_text, context_sentence, source, created_at
+            FROM vocabulary_excerpts
+            WHERE user_id = ?
+            ORDER BY datetime(created_at) DESC, id DESC
+        ''', (user_id,))
+        rows = cursor.fetchall()
+        return jsonify([{
+            "id": row["id"],
+            "term": row["term"],
+            "excerpt_text": row["excerpt_text"],
+            "context_sentence": row["context_sentence"],
+            "source": row["source"],
+            "created_at": row["created_at"]
+        } for row in rows])
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:

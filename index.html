@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Worklingo - 私人职场英语助手</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary-bg: #fdfdfc;
@@ -31,8 +34,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .glass-card {
@@ -50,6 +60,7 @@
         .custom-scrollbar::-webkit-scrollbar {
             width: 4px;
         }
+
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: #e5e5e5;
             border-radius: 10px;
@@ -64,28 +75,66 @@
         }
 
         @keyframes slide {
-            0% { background-position: -150% 0; }
-            100% { background-position: 150% 0; }
+            0% {
+                background-position: -150% 0;
+            }
+
+            100% {
+                background-position: 150% 0;
+            }
         }
 
         /* 隐藏 section 的逻辑 */
         .page-section {
             display: none;
         }
+
         .page-section.active {
             display: block;
         }
+
+        /* 3D Flip Card Styles */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
     </style>
 </head>
+
 <body>
 
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-white/50 backdrop-blur-sm border-b border-gray-100">
-        <div class="text-2xl font-serif font-bold tracking-tighter cursor-pointer" onclick="showSection('home')">WORKLINGO.</div>
-        <div class="flex gap-8 text-sm font-medium">
-            <button onclick="showSection('library')" class="hover:text-black transition-colors">语料库</button>
-            <button onclick="showSection('import')" class="hover:text-black transition-colors">开始分析</button>
-            <button id="navLoginBtn" onclick="showSection('auth')" class="bg-black text-white px-4 py-1.5 rounded-full text-xs">登录</button>
+    <nav
+        class="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-white/50 backdrop-blur-sm border-b border-gray-100">
+        <div class="text-2xl font-serif font-bold tracking-tighter cursor-pointer" onclick="showSection('home')">
+            WORKLINGO.</div>
+        <div class="flex gap-8 text-sm font-medium items-center">
+            <button id="navTabLibrary" onclick="showSection('library')"
+                class="top-nav-tab text-gray-500 border-b border-transparent pb-1 hover:text-black transition-colors">语料库</button>
+            <button id="navTabImport" onclick="showSection('import')"
+                class="top-nav-tab text-gray-500 border-b border-transparent pb-1 hover:text-black transition-colors">智能润色</button>
+            <button id="navTabVocab" onclick="showSection('vocabulary')"
+                class="top-nav-tab text-gray-500 border-b border-transparent pb-1 hover:text-black transition-colors">生词积累</button>
+            <button id="debugModeBtn" onclick="toggleDebugMode()"
+                class="bg-gray-200 text-gray-700 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-gray-300 transition-colors">Debug:
+                OFF</button>
+            <button id="aiModeBtn" onclick="toggleAIMode()"
+                class="bg-gray-200 text-gray-700 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-gray-300 transition-colors">AI:
+                OFF</button>
+            <button id="navLoginBtn" onclick="showSection('auth')"
+                class="bg-black text-white px-4 py-1.5 rounded-full text-xs">登录</button>
         </div>
     </nav>
 
@@ -100,13 +149,15 @@
                     <p class="max-w-md text-xl text-gray-500 leading-relaxed font-light">
                         拒绝无效的打卡和一万个词汇。Worklingo 帮你捕捉工作中真正发生的语料。将 Slack 对话、会议录音，转化为第二天就能上场的肌肉记忆。
                     </p>
-                    <button onclick="checkAuthAndStart()" class="mt-8 md:mt-0 px-10 py-5 bg-black text-white rounded-full hover:scale-105 transition-transform">
+                    <button onclick="checkAuthAndStart()"
+                        class="mt-8 md:mt-0 px-10 py-5 bg-black text-white rounded-full hover:scale-105 transition-transform">
                         立即构建私人语料库 →
                     </button>
                 </div>
             </div>
 
-            <div class="mt-32 grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-gray-100 pt-16 magazine-fade-in" style="animation-delay: 0.2s">
+            <div class="mt-32 grid grid-cols-1 md:grid-cols-3 gap-12 border-t border-gray-100 pt-16 magazine-fade-in"
+                style="animation-delay: 0.2s">
                 <div>
                     <span class="text-xs uppercase tracking-widest text-gray-400">01. 场景优先</span>
                     <h3 class="mt-4 text-2xl font-serif">Slack & Zoom</h3>
@@ -129,25 +180,63 @@
         </footer>
     </section>
 
-    <!-- SECTION: IMPORT -->
+    <!-- SECTION: POLISH ASSISTANT (Formerly Import) -->
     <section id="import" class="page-section pt-32 min-h-screen bg-[#f8f8f6]">
         <div class="max-w-4xl mx-auto px-8">
-            <div class="text-center mb-16">
-                <span class="text-xs uppercase tracking-widest text-gray-400">Input Phase</span>
-                <h2 class="text-4xl font-serif mt-4">导入原始语料</h2>
-                <p class="text-gray-500 mt-2">粘贴 Slack 记录、邮件草稿或会议转写文本</p>
+            <div class="text-center mb-12">
+                <span class="text-xs uppercase tracking-widest text-gray-400">Polish Assistant</span>
+                <h2 class="text-4xl font-serif mt-4">智能润色助手</h2>
+                <p class="text-gray-500 mt-2">输入中文或英文，AI 帮你转化为地道的职场表达</p>
             </div>
 
-            <div class="glass-card p-8 rounded-3xl">
-                <textarea id="rawInput" class="w-full h-64 bg-transparent border-none focus:ring-0 text-lg placeholder-gray-300 custom-scrollbar resize-none" placeholder="Hey, about the login bug, I think the API returns 500 error. Can you check when it can be fixed? We need this for the demo tomorrow."></textarea>
-                
-                <div class="mt-8 flex justify-between items-center">
-                    <div class="flex gap-2">
-                        <span class="px-3 py-1 bg-gray-100 rounded-full text-[10px] text-gray-400 uppercase">Text</span>
-                        <span class="px-3 py-1 bg-gray-100 rounded-full text-[10px] text-gray-400 uppercase">Slack</span>
+            <div class="glass-card p-8 rounded-3xl space-y-6">
+                <!-- Configuration Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">场景 (Scene)</label>
+                        <select id="inputScene"
+                            class="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-1 focus:ring-black text-sm">
+                            <option value="General">通用沟通 (General)</option>
+                            <option value="Email">邮件 (Email)</option>
+                            <option value="Slack">即时通讯 (Slack/Teams)</option>
+                            <option value="Meeting">会议发言 (Meeting)</option>
+                            <option value="Report">汇报/文档 (Report/Doc)</option>
+                            <option value="Jira">任务管理 (Jira/Ticket)</option>
+                        </select>
                     </div>
-                    <button onclick="analyzeText()" id="analyzeBtn" class="bg-black text-white px-8 py-3 rounded-full text-sm hover:opacity-80 transition-opacity">
-                        AI 提取与结构化
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">语气 (Tone)</label>
+                        <select id="inputTone"
+                            class="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-1 focus:ring-black text-sm">
+                            <option value="Neutral">标准职场 (Neutral)</option>
+                            <option value="Formal">正式/礼貌 (Formal)</option>
+                            <option value="Friendly">友好/轻松 (Friendly)</option>
+                            <option value="Assertive">坚定/自信 (Assertive)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Context Input (Optional) -->
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">语境说明 (Context -
+                        Optional)</label>
+                    <input type="text" id="inputContext" placeholder="例如：回复客户关于产品功能的咨询..."
+                        class="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-1 focus:ring-black text-sm placeholder-gray-300">
+                </div>
+
+                <!-- Main Input -->
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">内容 (Content)</label>
+                    <textarea id="rawInput"
+                        class="w-full h-48 bg-gray-50 rounded-xl border-none focus:ring-1 focus:ring-black text-lg p-4 placeholder-gray-300 custom-scrollbar resize-none"
+                        placeholder="输入你想说的话（中文或英文）..."></textarea>
+                </div>
+
+                <div class="flex justify-end items-center pt-4">
+                    <button onclick="analyzeText()" id="analyzeBtn"
+                        class="bg-black text-white px-8 py-3 rounded-full text-sm hover:opacity-80 transition-opacity flex items-center gap-2">
+                        <span>开始润色</span>
+                        <span>→</span>
                     </button>
                 </div>
                 <div id="loader" class="hidden mt-6">
@@ -162,7 +251,8 @@
     <section id="result" class="page-section pt-32 min-h-screen">
         <div class="max-w-5xl mx-auto px-8 pb-20">
             <div class="flex items-center gap-4 mb-12">
-                <button onclick="showSection('import')" class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50">←</button>
+                <button onclick="showSection('import')"
+                    class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50">←</button>
                 <h2 class="text-3xl font-serif">分析结果</h2>
             </div>
 
@@ -172,12 +262,20 @@
                     <div class="p-6 border border-gray-100 rounded-2xl">
                         <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-4">Scene & Intent</h4>
                         <div id="resScene" class="text-xl font-serif mb-2">-</div>
-                        <div id="resIntent" class="inline-block px-3 py-1 bg-black text-white text-[10px] rounded-full uppercase">-</div>
+                        <div id="resIntent"
+                            class="inline-block px-3 py-1 bg-black text-white text-[10px] rounded-full uppercase">-
+                        </div>
                     </div>
                     <div class="p-6 border border-gray-100 rounded-2xl">
-                        <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-4">Keywords</h4>
-                        <div id="resKeywords" class="flex flex-wrap gap-2 text-sm text-gray-600">
-                            <!-- Keywords will go here -->
+                        <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-4">Mindset Badges</h4>
+                        <div id="resBadges" class="flex flex-wrap gap-2">
+                            <!-- Badges like Proactive, Risk Awareness -->
+                        </div>
+                    </div>
+                    <div class="p-6 border border-gray-100 rounded-2xl bg-black text-white">
+                        <h4 class="text-[10px] uppercase tracking-widest text-gray-500 mb-4">Strategic Coach</h4>
+                        <div id="resStrategicCoach" class="text-xs leading-relaxed font-light italic text-gray-300">
+                            AI 战略辅导即将生成...
                         </div>
                     </div>
                 </div>
@@ -185,24 +283,25 @@
                 <!-- Right Main: Content -->
                 <div class="md:col-span-2 space-y-8">
                     <div class="p-8 bg-gray-50 rounded-3xl">
-                        <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-6">Key Expression (核心表达)</h4>
-                        <div id="resKeyExpression" class="text-2xl font-light italic text-gray-800 leading-relaxed mb-8">
+                        <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-6">Original (原文)</h4>
+                        <div id="resKeyExpression" class="text-lg font-light text-gray-600 leading-relaxed mb-8">
                             "..."
                         </div>
-                        
-                        <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-4">Better Alternative (高级替代)</h4>
-                        <div id="resBetterAlternative" class="p-6 bg-white rounded-2xl border-l-4 border-black shadow-sm">
-                            <p class="text-lg text-black">-</p>
-                            <p class="text-xs text-gray-400 mt-2 font-light italic">💡 职场建议：使用这个短语会显得更加专业且有掌控感。</p>
+
+                        <h4 class="text-xs uppercase tracking-widest text-gray-400 mb-4">Polished (润色后)</h4>
+                        <div id="resOptionsContainer" class="space-y-4 relative">
+                            <!-- Options or single item will be rendered here -->
                         </div>
                     </div>
 
                     <div class="flex gap-4">
-                        <button onclick="saveToLibrary()" class="flex-1 bg-black text-white py-4 rounded-2xl hover:opacity-90 transition-opacity">
-                            保存到我的语料库
+                        <button onclick="saveToLibrary()"
+                            class="flex-1 bg-black text-white py-4 rounded-2xl hover:opacity-90 transition-opacity">
+                            保存到语料库
                         </button>
-                        <button onclick="showSection('import')" class="px-8 py-4 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors">
-                            丢弃
+                        <button onclick="addToFlashcard()"
+                            class="flex-1 bg-white border border-gray-200 text-black py-4 rounded-2xl hover:bg-gray-50 transition-colors">
+                            添加到 Flashcard
                         </button>
                     </div>
                 </div>
@@ -211,34 +310,142 @@
     </section>
 
     <!-- SECTION: LIBRARY -->
-    <section id="library" class="page-section pt-32 min-h-screen">
-        <div class="max-w-6xl mx-auto px-8">
-            <div class="flex justify-between items-end mb-16">
-                <div>
-                    <h2 class="text-5xl font-serif">语料精选</h2>
-                    <p class="text-gray-400 mt-2 italic">你已经掌握了 200 个表达中的 12 个</p>
-                </div>
-                <div class="flex gap-2">
-                    <input type="text" placeholder="搜索场景..." class="px-4 py-2 border-b border-gray-200 focus:outline-none focus:border-black text-sm">
-                </div>
-            </div>
+    <section id="library" class="page-section pt-32 min-h-screen bg-[#f7f7f6]">
+        <div class="max-w-7xl mx-auto px-8 pb-20">
+            <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
+                <aside class="bg-white border border-gray-100 rounded-3xl p-6 lg:sticky lg:top-28">
+                    <h2 class="text-3xl font-serif">语料库</h2>
+                    <p class="text-xs uppercase tracking-widest text-gray-400 mt-2">Corpus Library</p>
+                    <p id="libraryStats" class="text-gray-500 mt-5 text-sm leading-relaxed">智能润色 0 条，生词摘录 0 条，覆盖 0 个词汇</p>
 
-            <div id="libraryContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Example Card -->
-                <div class="p-8 border border-gray-100 rounded-3xl hover:border-black transition-all cursor-pointer group">
-                    <div class="flex justify-between items-start mb-6">
-                        <span class="text-[10px] uppercase tracking-widest text-gray-400">Software Development</span>
-                        <span class="text-[10px] px-2 py-0.5 border border-gray-200 rounded text-gray-400">#BugFix</span>
+                    <div class="mt-8 space-y-3">
+                        <button onclick="switchLibraryView('polish')" id="tab-polish"
+                            class="w-full px-4 py-3 text-left text-sm rounded-2xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">智能润色语料</button>
+                        <button onclick="switchLibraryView('vocab')" id="tab-vocab"
+                            class="w-full px-4 py-3 text-left text-sm rounded-2xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">生词摘录库</button>
+                        <button onclick="switchLibraryView('timeline')" id="tab-timeline"
+                            class="w-full px-4 py-3 text-left text-sm rounded-2xl bg-black text-white hover:opacity-80 transition-colors">统一时间线</button>
                     </div>
-                    <p class="text-xl font-light italic text-gray-800 leading-relaxed group-hover:text-black">"Can you check when it can be fixed? We need this for the demo tomorrow."</p>
-                    <div class="mt-8 flex justify-between items-center text-xs text-gray-400">
-                        <span>Better: "Could you provide an ETA for the fix?"</span>
-                        <span class="opacity-0 group-hover:opacity-100 transition-opacity underline">查看详情</span>
+                </aside>
+
+                <div class="min-h-[70vh]">
+                    <div id="emptyLibraryState"
+                        class="hidden mb-6 text-center text-gray-400 py-12 bg-white border border-gray-100 rounded-3xl">
+                        暂无语料，快去“智能润色”或“生词积累”添加吧
+                    </div>
+
+                    <div id="view-polish" class="library-view hidden">
+                        <div id="polishLibraryContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Polish corpus cards -->
+                        </div>
+                    </div>
+
+                    <div id="view-vocab" class="library-view hidden">
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                            <div class="relative w-full md:w-80">
+                                <input type="text" id="libraryVocabSearch" placeholder="在生词摘录中搜索..."
+                                    class="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-1 focus:ring-black text-sm"
+                                    onkeyup="renderLibraryVocabularyView()">
+                                <span class="absolute left-4 top-3 text-gray-400">🔍</span>
+                            </div>
+                        </div>
+
+                        <div id="libraryVocabContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                            <!-- Vocabulary cards -->
+                        </div>
+                    </div>
+
+                    <div id="view-timeline" class="library-view hidden">
+                        <div class="mb-8 p-6 bg-white border border-gray-100 rounded-3xl overflow-x-auto custom-scrollbar">
+                            <div class="flex justify-between items-end mb-6 border-b border-gray-100 pb-2">
+                                <h3 class="text-sm font-bold uppercase tracking-widest text-gray-400">Activity Overview</h3>
+                                <button onclick="selectTimelineDate('all')"
+                                    class="text-xs text-gray-500 hover:text-black hover:underline">Show All</button>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <div class="flex flex-col text-[10px] text-gray-400 font-mono gap-[8px] mt-[8px]">
+                                    <span class="leading-none">Mon</span>
+                                    <span class="leading-none mt-[10px]">Wed</span>
+                                    <span class="leading-none mt-[10px]">Fri</span>
+                                </div>
+                                <div id="heatmapContainer" class="grid grid-rows-7 grid-flow-col gap-1 min-w-max"></div>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2 mt-6 text-[10px] text-gray-400 font-mono">
+                                <span class="mr-2">Less</span>
+                                <div class="w-3 h-3 bg-gray-100 rounded-sm border border-gray-200"></div>
+                                <div class="w-3 h-3 bg-[#c6e48b] rounded-sm border border-gray-200/50"></div>
+                                <div class="w-3 h-3 bg-[#7bc96f] rounded-sm"></div>
+                                <div class="w-3 h-3 bg-[#239a3b] rounded-sm"></div>
+                                <div class="w-3 h-3 bg-[#196127] rounded-sm"></div>
+                                <span class="ml-2">More</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 id="selectedDateTitle" class="text-2xl font-serif mb-6 pb-2 border-b border-gray-100">全部记录 (All
+                                Records)</h3>
+                            <div id="timelineContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- SECTION: VOCABULARY -->
+    <section id="vocabulary" class="page-section pt-32 min-h-screen bg-[#f8f8f6]">
+        <div class="max-w-4xl mx-auto px-8 pb-20">
+            <div class="mb-12">
+                <span class="text-xs uppercase tracking-widest text-gray-400">Vocabulary Capture</span>
+                <h2 class="text-4xl font-serif mt-3">生词积累</h2>
+                <p class="text-gray-500 mt-2">复制段落、标记生词、记录来源，按真实语境积累</p>
+            </div>
+
+            <div class="mb-8 p-6 bg-white border border-gray-100 rounded-3xl">
+                <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-4">
+                    <div>
+                        <h3 class="text-2xl font-serif">生词摘录</h3>
+                        <p class="text-xs text-gray-400 mt-1">在原文中选中词/词组后可自动填入生词框</p>
+                    </div>
+                    <button onclick="applySelectedExcerptTerm()"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-xl text-xs hover:bg-gray-200 transition-colors">
+                        使用已选中内容作为生词
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">原文摘录</label>
+                        <textarea id="excerptInputText" rows="5"
+                            class="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-1 focus:ring-black text-sm custom-scrollbar resize-y"
+                            placeholder="粘贴你阅读到的句子/段落，在文本里选中生词或词组..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">生词 / 词组</label>
+                        <input type="text" id="excerptMarkedTerm"
+                            class="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-1 focus:ring-black text-sm"
+                            placeholder="例如: anticipate">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">来源 (可选)</label>
+                        <input type="text" id="excerptSource"
+                            class="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-1 focus:ring-black text-sm"
+                            placeholder="例如: https://... / Newsletter / 书名">
+                    </div>
+                </div>
+                <div class="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                    <div class="text-[10px] uppercase tracking-widest text-gray-400 mb-2">命中句子预览</div>
+                    <div id="excerptSentencePreview" class="text-sm text-gray-600 leading-relaxed">-</div>
+                </div>
+                <div class="mt-4 flex justify-end">
+                    <button onclick="saveVocabularyExcerpt()" id="saveExcerptBtn"
+                        class="px-6 py-3 bg-black text-white rounded-xl text-sm hover:opacity-90 transition-opacity">
+                        保存到生词库
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <!-- SECTION: AUTH -->
     <section id="auth" class="page-section pt-32 min-h-screen bg-[#f8f8f6]">
@@ -248,17 +455,21 @@
                 <p class="text-gray-400 text-xs tracking-widest uppercase mb-8">Worklingo for Pragmatists</p>
 
                 <div class="space-y-4">
-                    <input type="email" id="authEmail" placeholder="Email Address" class="w-full px-6 py-4 bg-gray-50 rounded-xl border border-transparent focus:border-black focus:bg-white transition-all outline-none text-sm">
-                    <input type="password" id="authPassword" placeholder="Password" class="w-full px-6 py-4 bg-gray-50 rounded-xl border border-transparent focus:border-black focus:bg-white transition-all outline-none text-sm">
+                    <input type="email" id="authEmail" placeholder="Email Address"
+                        class="w-full px-6 py-4 bg-gray-50 rounded-xl border border-transparent focus:border-black focus:bg-white transition-all outline-none text-sm">
+                    <input type="password" id="authPassword" placeholder="Password"
+                        class="w-full px-6 py-4 bg-gray-50 rounded-xl border border-transparent focus:border-black focus:bg-white transition-all outline-none text-sm">
                 </div>
 
-                <button id="authBtn" onclick="handleAuth()" class="w-full mt-8 bg-black text-white py-4 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity">
+                <button id="authBtn" onclick="handleAuth()"
+                    class="w-full mt-8 bg-black text-white py-4 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity">
                     Sign In
                 </button>
 
                 <p class="mt-6 text-xs text-gray-400">
-                    <span id="authSwitchText">Don't have an account?</span> 
-                    <a href="#" onclick="toggleAuthMode()" id="authToggleLink" class="text-black underline">Create one</a>
+                    <span id="authSwitchText">Don't have an account?</span>
+                    <a href="#" onclick="toggleAuthMode()" id="authToggleLink" class="text-black underline">Create
+                        one</a>
                 </p>
             </div>
         </div>
@@ -266,301 +477,1522 @@
 
     <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="fixed inset-0 z-[100] hidden">
-        <div class="absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity" onclick="closeDeleteModal()"></div>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-6 bg-white rounded-2xl shadow-2xl transform transition-all scale-100">
+        <div class="absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity" onclick="closeDeleteModal()">
+        </div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm p-6 bg-white rounded-2xl shadow-2xl transform transition-all scale-100">
             <h3 class="text-xl font-serif mb-2">Confirm Deletion</h3>
-            <p class="text-gray-500 text-sm mb-6">Are you sure you want to remove this record? This action cannot be undone.</p>
+            <p class="text-gray-500 text-sm mb-6">Are you sure you want to remove this record? This action cannot be
+                undone.</p>
             <div class="flex gap-3">
-                <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm hover:bg-gray-50 transition-colors">Cancel</button>
-                <button onclick="confirmDelete()" id="confirmDeleteBtn" class="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl text-sm hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30">Delete</button>
+                <button onclick="closeDeleteModal()"
+                    class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm hover:bg-gray-50 transition-colors">Cancel</button>
+                <button onclick="confirmDelete()" id="confirmDeleteBtn"
+                    class="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl text-sm hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30">Delete</button>
             </div>
         </div>
     </div>
 
-    <script>
-        const apiKey = ""; // 执行环境自动注入
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'worklingo-demo';
+    <!-- Floating Add to Dictionary Tooltip -->
+    <div id="textSelectionTooltip"
+        class="fixed z-[200] hidden bg-black text-white text-xs px-3 py-2 rounded shadow-xl cursor-pointer hover:bg-gray-800 transition-colors flex items-center gap-2 transform -translate-x-1/2 -translate-y-full"
+        style="margin-top: -8px;">
+        <span>+ 加入生词积累</span>
+    </div>
 
-        let currentAnalysis = null;
-        let deleteTargetId = null; // Store ID for deletion
-
-        let library = [
-            {
-                scene: "项目管理 / 排期讨论",
-                intent: "询问进度",
-                expression: "Can you check when it can be fixed?",
-                alternative: "Could you provide an ETA for the fix?",
-                keywords: ["ETA", "fixed", "demo"]
-            }
-        ];
-
-        function showSection(sectionId) {
-            document.querySelectorAll('.page-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            const target = document.getElementById(sectionId);
-            target.classList.add('active');
-            window.scrollTo(0, 0);
-
-            if (sectionId === 'library') {
-                renderLibrary();
-            }
-
-            // Auto-clear input when entering Import section
-            if (sectionId === 'import') {
-                document.getElementById('rawInput').value = '';
-            }
-        }
-
-        async function analyzeText() {
-            const input = document.getElementById('rawInput').value.trim();
-            if (!input) return;
-
-            const btn = document.getElementById('analyzeBtn');
-            const loader = document.getElementById('loader');
-
-            btn.disabled = true;
-            btn.classList.add('opacity-50');
-            loader.classList.remove('hidden');
-
-            try {
-                // Call local backend API which proxies to DeepSeek
-                const response = await fetch('/api/analyze', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: input })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'API Request failed');
-                }
-
-                const result = await response.json();
-
-                currentAnalysis = result;
-                displayResult(result);
-                showSection('result');
-            } catch (error) {
-                console.error("AI Analysis failed:", error);
-                alert("AI 分析失败: " + error.message + "\n\n请检查后台是否配置了 API Key，或者使用默认演示数据。");
-                
-                // Fallback for demo if API fails
-                const fallback = {
-                    scene: "演示模式 / 接口未配置",
-                    intent: "寻求支持",
-                    keyExpression: input.length > 50 ? input.substring(0, 50) + "..." : input,
-                    betterAlternative: "Could you please assist with this inquiry at your earliest convenience?",
-                    keywords: ["assistance", "ASAP", "demo"]
-                };
-                displayResult(fallback);
-                showSection('result');
-            } finally {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50');
-                loader.classList.add('hidden');
-            }
-        }
-
-        function displayResult(res) {
-            document.getElementById('resScene').innerText = res.scene || "通用职场";
-            document.getElementById('resIntent').innerText = res.intent || "交流意图";
-            document.getElementById('resKeyExpression').innerText = `"${res.keyExpression}"`;
-            document.getElementById('resBetterAlternative').querySelector('p').innerText = res.betterAlternative;
-            
-            const kwContainer = document.getElementById('resKeywords');
-            kwContainer.innerHTML = '';
-            (res.keywords || []).forEach(kw => {
-                const span = document.createElement('span');
-                span.className = 'px-3 py-1 bg-gray-100 rounded-full';
-                span.innerText = kw;
-                kwContainer.appendChild(span);
-            });
-        }
-
-        async function saveToLibrary() {
-            if (!currentAnalysis) return;
-            
-            const btn = document.querySelector('button[onclick="saveToLibrary()"]');
-            const originalText = btn.innerText;
-            btn.innerText = "Saving...";
-            btn.disabled = true;
-
-            try {
-                const rawInput = document.getElementById('rawInput').value;
-                const response = await fetch('/api/save', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        raw_content: rawInput,
-                        analysis: currentAnalysis
-                    })
-                });
-                
-                if (!response.ok) throw new Error("Save failed");
-                
-                // Reload library to get fresh data from DB
-                await loadLibrary();
-                showSection('library');
-            } catch (error) {
-                console.error("Save error:", error);
-                alert("保存失败，请重试");
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        async function loadLibrary() {
-            try {
-                const response = await fetch('/api/library');
-                if (!response.ok) throw new Error("Load failed");
-                library = await response.json();
-                renderLibrary();
-            } catch (error) {
-                console.error("Load library error:", error);
-            }
-        }
-
-        function renderLibrary() {
-            const container = document.getElementById('libraryContainer');
-            if (library.length === 0) {
-                container.innerHTML = `<div class="col-span-2 text-center text-gray-400 py-10">暂无语料，快去添加吧</div>`;
-                return;
-            }
-            container.innerHTML = library.map(item => `
-                <div class="p-8 border border-gray-100 rounded-3xl hover:border-black transition-all group relative">
-                    <button onclick="openDeleteModal(${item.id}, event)" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10" title="删除">
-                        ×
-                    </button>
-                    <div class="flex justify-between items-start mb-6 pr-8">
-                        <span class="text-[10px] uppercase tracking-widest text-gray-400">${item.scene}</span>
-                        <span class="text-[10px] px-2 py-0.5 border border-gray-200 rounded text-gray-400">#${item.intent}</span>
+    <!-- Add Term Modal -->
+    <div id="addTermModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/20 backdrop-blur-sm transition-opacity" onclick="closeAddTermModal()">
+        </div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md p-8 bg-white rounded-3xl shadow-2xl transform transition-all scale-100">
+            <h3 class="text-2xl font-serif mb-6">新增专属词汇</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs uppercase tracking-widest text-gray-400 mb-2">词汇或短语 (Term)</label>
+                    <input type="text" id="newTermInput"
+                        class="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-1 focus:ring-black text-sm"
+                        placeholder="例如: Stand-up">
+                </div>
+                <div>
+                    <div class="flex justify-between items-end mb-2">
+                        <label class="block text-xs uppercase tracking-widest text-gray-400">解释/应用场景
+                            (Definition)</label>
+                        <button id="aiDefineBtn" onclick="fetchAIDefinition(this)"
+                            class="hidden text-[10px] bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200 transition-colors shrink-0 whitespace-nowrap">✨
+                            AI 补全释义与例句</button>
                     </div>
-                    <p class="text-xl font-light italic text-gray-800 leading-relaxed group-hover:text-black">"${item.expression}"</p>
-                    <div class="mt-8 flex justify-between items-center text-xs text-gray-400">
-                        <span>Better: "${item.alternative}"</span>
+                    <textarea id="newTermDef" rows="4"
+                        class="w-full px-4 py-3 bg-gray-50 rounded-xl border-none focus:ring-1 focus:ring-black text-sm custom-scrollbar"
+                        placeholder="每日进度对齐会议..."></textarea>
+                </div>
+            </div>
+            <div class="flex gap-3 mt-8">
+                <button onclick="closeAddTermModal()"
+                    class="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm hover:bg-gray-50 transition-colors">取消</button>
+                <button onclick="saveCustomTerm()"
+                    class="flex-1 px-4 py-3 bg-black text-white rounded-xl text-sm hover:opacity-90 transition-opacity">保存词汇</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Detail Modal -->
+    <div id="timelineDetailModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-md transition-opacity" onclick="closeTimelineDetail()">
+        </div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl p-0 bg-white rounded-[2rem] shadow-2xl transform transition-all overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="p-8 pb-4 flex justify-between items-center border-b border-gray-100 shrink-0">
+                <h3 class="text-2xl font-serif">记录详情 (Record Details)</h3>
+                <button onclick="closeTimelineDetail()"
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-gray-100 transition-all">×</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+                <div class="space-y-8">
+                    <!-- Before & After Comparison -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase tracking-widest text-gray-400">原文 (Original)</label>
+                            <div id="detailOriginal"
+                                class="p-5 bg-gray-50 rounded-2xl text-gray-600 font-light italic leading-relaxed text-sm border border-gray-100">
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] uppercase tracking-widest text-gray-400">核心润色 (Core
+                                Polished)</label>
+                            <div id="detailPolished"
+                                class="p-5 bg-purple-50 rounded-2xl text-black font-medium leading-relaxed text-sm border border-purple-100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tags & Intent -->
+                    <div class="flex flex-wrap gap-2" id="detailTags">
+                        <!-- Dynamic Tags -->
+                    </div>
+
+                    <!-- Style Comparison -->
+                    <div id="detailStylesContainer" class="space-y-4">
+                        <label class="text-[10px] uppercase tracking-widest text-gray-400 block">多风格表达建议 (Style
+                            Variants)</label>
+                        <div id="detailStylesList" class="space-y-3">
+                            <!-- Dynamic Styles -->
+                        </div>
+                    </div>
+
+                    <!-- Insights -->
+                    <div class="space-y-4 shrink-0">
+                        <div class="flex justify-between items-end">
+                            <label class="text-[10px] uppercase tracking-widest text-gray-400">AI 深度点评与战略辅导</label>
+                            <div id="detailBadges" class="flex gap-1"></div>
+                        </div>
+
+                        <div id="detailStrategicCoach"
+                            class="p-5 bg-black text-white rounded-2xl text-[11px] leading-relaxed italic border border-gray-800 hidden">
+                        </div>
+
+                        <div id="detailInsightsContainer" class="space-y-4">
+                            <!-- Dynamically structured insights will go here -->
+                        </div>
                     </div>
                 </div>
-            `).join('');
-        }
+            </div>
+            <div class="p-8 pt-4 border-t border-gray-100 flex gap-4 shrink-0">
+                <button onclick="closeTimelineDetail()"
+                    class="flex-1 px-6 py-4 border border-gray-200 rounded-2xl text-sm font-medium hover:bg-gray-50 transition-all">返回流水账</button>
+            </div>
+        </div>
+        </div>
 
-        // Modal Logic
-        function openDeleteModal(id, event) {
-            event.stopPropagation();
-            deleteTargetId = id;
-            document.getElementById('deleteModal').classList.remove('hidden');
-        }
+    <!-- Term Detail / History Modal -->
+    <div id="termHistoryModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-md transition-opacity" onclick="closeTermHistory()">
+        </div>
+        <div
+            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl p-0 bg-white rounded-[2rem] shadow-2xl transform transition-all overflow-hidden max-h-[85vh] flex flex-col">
+            <div class="p-8 pb-4 flex justify-between items-center border-b border-gray-100 shrink-0">
+                <div>
+                    <h3 id="historyTermName" class="text-3xl font-serif">Term Name</h3>
+                    <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest">生词摘录详情</p>
+                </div>
+                <button onclick="closeTermHistory()"
+                    class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-gray-100 transition-all">×</button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-6">
+                <div id="historyTermInfo" class="p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                    <!-- Term definition and levels -->
+                </div>
+                <div class="space-y-4">
+                    <label id="historyUsageCount"
+                        class="text-[10px] uppercase tracking-widest text-gray-400 font-bold block">摘录记录
+                        (12次)</label>
+                    <div id="historyUsageList" class="space-y-3">
+                        <!-- List of usage -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        function closeDeleteModal() {
-            deleteTargetId = null;
-            document.getElementById('deleteModal').classList.add('hidden');
-        }
+        <script>
+            const apiKey = ""; // 执行环境自动注入
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'worklingo-demo';
 
-        async function confirmDelete() {
-            if (!deleteTargetId) return;
+            let currentAnalysis = null;
+            let deleteTargetId = null; // Store ID for deletion
+            let library = [];
+            let vocabExcerpts = [];
+            let activeSection = 'home';
+            let flashcards = []; // Local mock for flashcards
+            let currentCardIndex = 0;
+            let isFlipped = false;
 
-            const btn = document.getElementById('confirmDeleteBtn');
-            const originalContent = btn.innerHTML;
-            btn.innerHTML = 'Deleting...';
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(`/api/library/${deleteTargetId}`, {
-                    method: 'DELETE'
+            function updateTopNavActive(sectionId) {
+                const tabIds = ['navTabLibrary', 'navTabImport', 'navTabVocab'];
+                const activeMap = {
+                    library: 'navTabLibrary',
+                    import: 'navTabImport',
+                    result: 'navTabImport',
+                    vocabulary: 'navTabVocab'
+                };
+                tabIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    el.classList.remove('text-black', 'border-black');
+                    el.classList.add('text-gray-500', 'border-transparent');
                 });
+                const activeId = activeMap[sectionId];
+                if (activeId) {
+                    const activeEl = document.getElementById(activeId);
+                    if (activeEl) {
+                        activeEl.classList.remove('text-gray-500', 'border-transparent');
+                        activeEl.classList.add('text-black', 'border-black');
+                    }
+                }
+            }
 
-                if (!response.ok) {
-                    throw new Error("Delete failed");
+            function showSection(sectionId) {
+                document.querySelectorAll('.page-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                const target = document.getElementById(sectionId);
+                target.classList.add('active');
+                activeSection = sectionId;
+                window.scrollTo(0, 0);
+                updateTopNavActive(sectionId);
+
+                if (sectionId === 'library' || sectionId === 'vocabulary') {
+                    loadLibrary();
+                    loadVocabularyExcerpts();
+                    if (sectionId === 'library') {
+                        switchLibraryView(currentLibraryView);
+                    }
+                } else if (sectionId === 'flashcards') {
+                    loadFlashcards();
                 }
 
-                // Remove from local array
-                library = library.filter(item => item.id !== deleteTargetId);
-                renderLibrary();
-                closeDeleteModal();
-
-            } catch (error) {
-                console.error("Delete error:", error);
-                alert("删除失败，请重试");
-            } finally {
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-            }
-        }
-
-        // Auth Logic
-        let isLoginMode = true;
-        let currentUser = null;
-
-        function toggleAuthMode() {
-            isLoginMode = !isLoginMode;
-            document.getElementById('authTitle').innerText = isLoginMode ? "Welcome Back" : "Join Worklingo";
-            document.getElementById('authBtn').innerText = isLoginMode ? "Sign In" : "Create Account";
-            document.getElementById('authSwitchText').innerText = isLoginMode ? "Don't have an account?" : "Already have an account?";
-            document.getElementById('authToggleLink').innerText = isLoginMode ? "Create one" : "Sign In";
-        }
-
-        async function handleAuth() {
-            const email = document.getElementById('authEmail').value;
-            const password = document.getElementById('authPassword').value;
-            const btn = document.getElementById('authBtn');
-            const originalText = btn.innerText;
-
-            if (!email || !password) {
-                alert("Please enter both email and password");
-                return;
+                // Auto-clear input when entering Import section
+                if (sectionId === 'import') {
+                    document.getElementById('rawInput').value = '';
+                }
             }
 
-            btn.disabled = true;
-            btn.innerText = "Processing...";
+            async function analyzeText() {
+                const input = document.getElementById('rawInput').value.trim();
+                const scene = document.getElementById('inputScene').value;
+                const tone = document.getElementById('inputTone').value;
+                const context = document.getElementById('inputContext').value.trim();
 
-            try {
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                if (!input) return;
+
+                const btn = document.getElementById('analyzeBtn');
+                const loader = document.getElementById('loader');
+
+                btn.disabled = true;
+                btn.classList.add('opacity-50');
+                loader.classList.remove('hidden');
+
+                try {
+                    // Call local backend API which proxies to DeepSeek
+                    const response = await fetch('/api/analyze', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            text: input,
+                            scene: scene,
+                            tone: tone,
+                            context: context
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'API Request failed');
+                    }
+
+                    const result = await response.json();
+
+                    currentAnalysis = result;
+                    displayResult(result);
+                    showSection('result');
+                } catch (error) {
+                    console.error("AI Analysis failed:", error);
+                    alert("AI 分析失败: " + error.message + "\n\n请检查后台是否配置了 API Key，或者使用默认演示数据。");
+
+                    // Fallback for demo if API fails
+                    const fallback = {
+                        scene_tag: scene,
+                        intent_tag: "寻求支持",
+                        key_phrases: ["assistance", "ASAP", "demo"],
+                        polished_text: "Could you please assist with this inquiry at your earliest convenience?",
+                        explanation: "More professional and polite tone."
+                    };
+                    currentAnalysis = fallback; // Ensure fallback is savable
+                    displayResult(fallback);
+                    showSection('result');
+                } finally {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50');
+                    loader.classList.add('hidden');
+                }
+            }
+
+            function displayResult(res) {
+                // Handle both v1 and v2 API responses for backward compatibility
+                const scene = res.scene_tag || res.scene || "General";
+                const intent = res.intent_tag || res.intent || "Communication";
+                const original = document.getElementById('rawInput').value;
+                const keywords = res.key_phrases || res.keywords || [];
+
+                document.getElementById('resScene').innerText = scene;
+                document.getElementById('resIntent').innerText = intent;
+                document.getElementById('resKeyExpression').innerText = `"${original}"`;
+
+                const optionsContainer = document.getElementById('resOptionsContainer');
+                optionsContainer.innerHTML = '';
+
+                if (res.polished_options && res.polished_options.length > 0) {
+                    res.polished_options.forEach((opt, idx) => {
+                        optionsContainer.innerHTML += `
+                        <div class="p-6 bg-white rounded-2xl border-l-4 ${idx === 0 ? 'border-black' : 'border-gray-200'} shadow-sm relative group cursor-text">
+                            <span class="absolute top-4 right-6 text-[10px] text-gray-400 font-bold uppercase tracking-widest">${opt.style}</span>
+                            <p class="text-lg text-black font-medium leading-relaxed pr-24 selection:bg-purple-200 selection:text-black">${opt.text}</p>
+                            <p class="text-xs text-gray-500 mt-4 font-light italic border-t border-gray-100 pt-3">${opt.explanation}</p>
+                        </div>
+                    `;
+                    });
+                } else {
+                    // Fallback for older format
+                    const polished = res.polished_text || res.betterAlternative || res.refined_text || "No result";
+                    const explanation = res.explanation || "No explanation provided.";
+                    optionsContainer.innerHTML = `
+                    <div class="p-6 bg-white rounded-2xl border-l-4 border-black shadow-sm relative group cursor-text">
+                        <span class="absolute top-4 right-6 text-[10px] text-gray-400 font-bold uppercase tracking-widest">推荐版本</span>
+                        <p class="text-xl text-black font-medium leading-relaxed pr-24 selection:bg-purple-200 selection:text-black">${polished}</p>
+                        <p class="text-xs text-gray-500 mt-4 font-light italic border-t border-gray-100 pt-3">💡 ${explanation}</p>
+                    </div>
+                `;
+                }
+
+                const kwContainer = document.getElementById('resKeywords');
+                if (kwContainer) {
+                    kwContainer.innerHTML = '';
+                    keywords.forEach(kw => {
+                        const span = document.createElement('span');
+                        span.className = 'px-3 py-1 bg-gray-100 rounded-full';
+                        span.innerText = kw;
+                        kwContainer.appendChild(span);
+                    });
+                }
+
+                // Strategic Coach & Badges
+                const coachEl = document.getElementById('resStrategicCoach');
+                if (coachEl) coachEl.innerText = res.strategic_coach || "本次润色主要优化了语言的地道程度。建议在沟通中保持主动性。";
+
+                const badgeContainer = document.getElementById('resBadges');
+                if (badgeContainer) {
+                    badgeContainer.innerHTML = '';
+                    const badges = res.mindset_badges || ['Standard'];
+                    badges.forEach(b => {
+                        badgeContainer.innerHTML += `<span class="px-2 py-1 border border-gray-200 text-[10px] font-bold rounded uppercase tracking-tighter text-gray-400 animation-pulse">${b}</span>`;
+                    });
+                }
+            }
+
+            async function saveToLibrary() {
+                if (!currentAnalysis) return;
+
+                const btn = document.querySelector('button[onclick="saveToLibrary()"]');
+                const originalText = btn.innerText;
+                btn.innerText = "Saving...";
+                btn.disabled = true;
+
+                try {
+                    const rawInput = document.getElementById('rawInput').value;
+                    const context = document.getElementById('inputContext').value;
+                    const tone = document.getElementById('inputTone').value;
+
+                    const response = await fetch('/api/save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            raw_content: rawInput,
+                            context: context,
+                            tone: tone,
+                            analysis: currentAnalysis
+                        })
+                    });
+
+                    if (!response.ok) throw new Error("Save failed");
+
+                    // Reload library to get fresh data from DB
+                    await loadLibrary();
+                    showSection('library');
+                } catch (error) {
+                    console.error("Save error:", error);
+                    alert("保存失败，请重试");
+                } finally {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            }
+
+            async function loadLibrary() {
+                try {
+                    const response = await fetch('/api/library');
+                    if (!response.ok) throw new Error("Load failed");
+                    library = await response.json();
+                    if (activeSection === 'library') renderLibrary();
+                } catch (error) {
+                    console.error("Load library error:", error);
+                }
+            }
+
+            async function loadVocabularyExcerpts() {
+                try {
+                    const response = await fetch('/api/vocabulary/excerpts');
+                    if (!response.ok) throw new Error("Load vocabulary excerpts failed");
+                    vocabExcerpts = await response.json();
+                    if (activeSection === 'library') renderLibrary();
+                } catch (error) {
+                    console.error("Load vocabulary excerpts error:", error);
+                }
+            }
+
+            function escapeHtml(str) {
+                if (str === null || str === undefined) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function formatDateTime(datetimeStr) {
+                const d = new Date(datetimeStr);
+                if (isNaN(d.getTime())) return datetimeStr || '-';
+                const y = d.getFullYear();
+                const m = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const hh = String(d.getHours()).padStart(2, '0');
+                const mm = String(d.getMinutes()).padStart(2, '0');
+                return `${y}-${m}-${day} ${hh}:${mm}`;
+            }
+
+            function extractSentenceForTerm(text, term) {
+                const cleanText = (text || '').trim();
+                const cleanTerm = (term || '').trim();
+                if (!cleanText) return '';
+                if (!cleanTerm) return cleanText;
+
+                const lowerText = cleanText.toLowerCase();
+                const lowerTerm = cleanTerm.toLowerCase();
+                const idx = lowerText.indexOf(lowerTerm);
+                if (idx < 0) return cleanText;
+
+                const delimiters = '.!?。！？\n';
+                let start = idx;
+                while (start > 0 && !delimiters.includes(cleanText[start - 1])) start--;
+
+                let end = idx + cleanTerm.length;
+                while (end < cleanText.length && !delimiters.includes(cleanText[end])) end++;
+                if (end < cleanText.length) end++;
+
+                const sentence = cleanText.slice(start, end).trim();
+                return sentence || cleanText;
+            }
+
+            function groupExcerptTerms() {
+                const grouped = {};
+                vocabExcerpts.forEach(item => {
+                    const term = (item.term || '').trim();
+                    if (!term) return;
+                    const key = term.toLowerCase();
+                    if (!grouped[key]) {
+                        grouped[key] = {
+                            term,
+                            records: []
+                        };
+                    }
+                    grouped[key].records.push(item);
                 });
 
-                const data = await response.json();
+                const groups = Object.values(grouped);
+                groups.forEach(g => {
+                    g.records.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    g.count = g.records.length;
+                    g.latest = g.records[0];
+                });
+                groups.sort((a, b) => {
+                    const diff = new Date(b.latest?.created_at || 0) - new Date(a.latest?.created_at || 0);
+                    return diff !== 0 ? diff : b.count - a.count;
+                });
+                return groups;
+            }
 
-                if (response.ok && data.success) {
-                    currentUser = data.user;
-                    
-                    // Update UI
-                    const navBtn = document.getElementById('navLoginBtn');
-                    navBtn.innerText = currentUser.name;
-                    navBtn.onclick = null;
+            function applySelectedExcerptTerm() {
+                const textEl = document.getElementById('excerptInputText');
+                const termEl = document.getElementById('excerptMarkedTerm');
+                if (!textEl || !termEl) return;
+
+                const start = textEl.selectionStart;
+                const end = textEl.selectionEnd;
+                if (end <= start) {
+                    alert("请先在原文摘录中选中一个单词或词组");
+                    return;
+                }
+                const selected = textEl.value.slice(start, end).trim();
+                if (!selected) {
+                    alert("选中的内容为空，请重新选择");
+                    return;
+                }
+                termEl.value = selected;
+                updateExcerptSentencePreview();
+            }
+
+            function updateExcerptSentencePreview() {
+                const text = document.getElementById('excerptInputText')?.value || '';
+                const term = document.getElementById('excerptMarkedTerm')?.value || '';
+                const preview = document.getElementById('excerptSentencePreview');
+                if (!preview) return;
+                const sentence = extractSentenceForTerm(text, term);
+                preview.innerText = sentence || '-';
+            }
+
+            async function saveVocabularyExcerpt() {
+                const text = (document.getElementById('excerptInputText')?.value || '').trim();
+                const term = (document.getElementById('excerptMarkedTerm')?.value || '').trim();
+                const source = (document.getElementById('excerptSource')?.value || '').trim();
+
+                if (!text) {
+                    alert("请先输入摘录原文");
+                    return;
+                }
+                if (!term) {
+                    alert("请先标记一个生词或词组");
+                    return;
+                }
+
+                const btn = document.getElementById('saveExcerptBtn');
+                const originalText = btn.innerText;
+                btn.innerText = "保存中...";
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/vocabulary/excerpts', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text, term, source })
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Save excerpt failed');
+
+                    document.getElementById('excerptInputText').value = '';
+                    document.getElementById('excerptMarkedTerm').value = '';
+                    document.getElementById('excerptSentencePreview').innerText = '-';
+                    await loadVocabularyExcerpts();
+                } catch (error) {
+                    console.error("Save excerpt error:", error);
+                    alert("保存摘录失败: " + error.message);
+                } finally {
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                }
+            }
+
+            function prefillVocabularyCapture(term, contextText = '') {
+                if (!term) return;
+                showSection('vocabulary');
+                const excerptInput = document.getElementById('excerptInputText');
+                const excerptTerm = document.getElementById('excerptMarkedTerm');
+                if (excerptInput && contextText) {
+                    excerptInput.value = contextText.trim();
+                }
+                if (excerptTerm) {
+                    excerptTerm.value = term.trim();
+                    excerptTerm.focus();
+                }
+                updateExcerptSentencePreview();
+            }
+
+            let currentLibraryView = 'timeline';
+
+            function switchLibraryView(view) {
+                currentLibraryView = view;
+
+                // Update tabs
+                ['polish', 'vocab', 'timeline'].forEach(v => {
+                    const btn = document.getElementById(`tab-${v}`);
+                    if (v === view) {
+                        btn.className = "px-6 py-2 text-sm rounded-full bg-black text-white hover:opacity-80 transition-colors";
+                    } else {
+                        btn.className = "px-6 py-2 text-sm rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors";
+                    }
+
+                    const container = document.getElementById(`view-${v}`);
+                    if (v === view) {
+                        container.classList.remove('hidden');
+                        container.classList.add('block');
+                    } else {
+                        container.classList.add('hidden');
+                        container.classList.remove('block');
+                    }
+                });
+
+                renderLibrary();
+            }
+
+            function renderLibrary() {
+                const emptyState = document.getElementById('emptyLibraryState');
+                const hasAnyData = (library.length + vocabExcerpts.length) > 0;
+
+                // Stats
+                let totalPoints = 0;
+                let keywordsSet = new Set();
+                library.forEach(item => {
+                    if (item.granular_points) totalPoints += item.granular_points.length;
+                    if (item.keywords) item.keywords.forEach(kw => keywordsSet.add(kw));
+                });
+                vocabExcerpts.forEach(item => {
+                    const term = (item.term || '').trim();
+                    if (term) keywordsSet.add(term.toLowerCase());
+                });
+                document.getElementById('libraryStats').innerText = `智能润色 ${library.length} 条，生词摘录 ${vocabExcerpts.length} 条，覆盖 ${keywordsSet.size} 个词汇`;
+
+                if (!hasAnyData) {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                }
+
+                if (currentLibraryView === 'timeline') {
+                    renderTimelineView();
+                } else if (currentLibraryView === 'vocab') {
+                    renderLibraryVocabularyView();
+                } else {
+                    renderPolishLibraryView();
+                }
+            }
+
+            function renderPolishLibraryView() {
+                const container = document.getElementById('polishLibraryContainer');
+                if (!container) return;
+                if (library.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-12">暂无智能润色语料，先去“智能润色”页保存一条记录吧</div>`;
+                    return;
+                }
+
+                const sorted = [...library].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                container.innerHTML = sorted.map(item => {
+                    let timeStr = formatDateTime(item.created_at);
+                    return `
+                    <div onclick="openTimelineDetail(${item.id})" class="p-8 border border-gray-100 rounded-3xl hover:border-black hover:shadow-xl hover:-translate-y-1 cursor-pointer transition-all group relative bg-white">
+                        <button onclick="openDeleteModal(${item.id}, event)" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10" title="删除">
+                            ×
+                        </button>
+                        <div class="flex justify-between items-start mb-6 pr-8">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-400">${escapeHtml(item.scene || 'General')}</span>
+                            <div class="flex gap-2">
+                                ${item.tone ? `<span class="text-[10px] px-2 py-0.5 border border-gray-200 rounded text-gray-400">${escapeHtml(item.tone)}</span>` : ''}
+                                <span class="text-[10px] px-2 py-0.5 border border-gray-200 rounded text-gray-400">#${escapeHtml(item.intent || 'Communication')}</span>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-400 mb-1">Original:</p>
+                            <p class="text-lg font-light text-gray-600 italic line-clamp-2">"${escapeHtml(item.original || '')}"</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400 mb-1">Polished:</p>
+                            <p class="text-xl font-medium text-black line-clamp-2">"${escapeHtml(item.polished || item.alternative || '展开查看详情')}"</p>
+                        </div>
+                        <div class="mt-4 text-[10px] text-gray-300">${escapeHtml(timeStr)}</div>
+                    </div>
+                `;
+                }).join('');
+            }
+
+            let customTerms = [];
+
+            function renderVocabularyCards(containerId, searchQuery, emptyText) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                const q = (searchQuery || '').toLowerCase();
+                const excerptGroups = groupExcerptTerms().filter(g => !q || g.term.toLowerCase().includes(q));
+
+                const excerptCards = excerptGroups.map(group => {
+                    const safeTerm = group.term.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+                    const latestSentence = escapeHtml(group.latest?.context_sentence || extractSentenceForTerm(group.latest?.excerpt_text, group.term) || '-');
+                    const latestSource = escapeHtml(group.latest?.source || '未填写来源');
+                    const latestTime = formatDateTime(group.latest?.created_at);
+                    return `
+                    <div class="p-8 bg-white border border-gray-100 rounded-3xl hover:-translate-y-1 hover:shadow-xl transition-all cursor-pointer" onclick="openTermHistory('${safeTerm}')">
+                        <div class="flex justify-between items-start mb-3 gap-4">
+                            <h4 class="font-serif text-2xl text-black break-words">${escapeHtml(group.term)}</h4>
+                            <span class="px-2 py-1 bg-black text-white text-[10px] rounded-full whitespace-nowrap">${group.count} 条摘录</span>
+                        </div>
+                        <div class="text-[10px] uppercase tracking-widest text-gray-400 mb-2">最近语境</div>
+                        <p class="text-sm text-gray-700 leading-relaxed italic line-clamp-3">"${latestSentence}"</p>
+                        <div class="mt-4 pt-4 border-t border-gray-100 text-xs text-gray-500 space-y-1">
+                            <p>来源: ${latestSource}</p>
+                            <p>摘录时间: ${escapeHtml(latestTime)}</p>
+                        </div>
+                    </div>
+                `;
+                }).join('');
+
+                if (!excerptCards) {
+                    container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10">${emptyText}</div>`;
+                    return;
+                }
+                container.innerHTML = excerptCards;
+            }
+
+            function renderLibraryVocabularyView() {
+                const searchQuery = (document.getElementById('libraryVocabSearch')?.value || '').toLowerCase();
+                renderVocabularyCards(
+                    'libraryVocabContainer',
+                    searchQuery,
+                    '暂无生词摘录，先去“生词积累”页面新增吧'
+                );
+            }
+
+            function openTermHistory(termName) {
+                const excerptGroup = groupExcerptTerms().find(g => g.term.toLowerCase() === termName.toLowerCase());
+                if (excerptGroup) {
+                    document.getElementById('historyTermName').innerText = excerptGroup.term;
+                    document.getElementById('historyTermInfo').innerHTML = `
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <p>累计摘录: <span class="font-semibold text-black">${excerptGroup.count} 条</span></p>
+                        <p>最近摘录时间: <span class="font-semibold text-black">${escapeHtml(formatDateTime(excerptGroup.latest?.created_at))}</span></p>
+                    </div>
+                `;
+
+                    document.getElementById('historyUsageCount').innerText = `摘录记录 (${excerptGroup.records.length}条)`;
+                    const listContainer = document.getElementById('historyUsageList');
+                    listContainer.innerHTML = excerptGroup.records.map(record => {
+                        const contextSentence = escapeHtml(record.context_sentence || extractSentenceForTerm(record.excerpt_text, excerptGroup.term) || '-');
+                        const source = (record.source || '').trim();
+                        const sourceHtml = /^https?:\/\//i.test(source)
+                            ? `<a href="${escapeHtml(source)}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline break-all">${escapeHtml(source)}</a>`
+                            : escapeHtml(source || '未填写');
+                        return `
+                        <div class="p-4 bg-white border border-gray-100 rounded-2xl">
+                            <div class="flex justify-between items-start mb-3 gap-3">
+                                <span class="text-[10px] uppercase tracking-widest text-gray-400">摘录时间</span>
+                                <span class="text-[11px] text-gray-500">${escapeHtml(formatDateTime(record.created_at))}</span>
+                            </div>
+                            <p class="text-sm text-gray-800 leading-relaxed mb-3">"${contextSentence}"</p>
+                            <p class="text-xs text-gray-500 mb-2">来源: ${sourceHtml}</p>
+                            <details class="text-xs text-gray-500">
+                                <summary class="cursor-pointer hover:text-black">查看完整摘录原文</summary>
+                                <p class="mt-2 leading-relaxed whitespace-pre-wrap">${escapeHtml(record.excerpt_text || '')}</p>
+                            </details>
+                        </div>
+                    `;
+                    }).join('');
+
+                    document.getElementById('termHistoryModal').classList.remove('hidden');
+                    return;
+                }
+
+                const data = customTerms.find(t => t.term === termName);
+                if (!data) return;
+
+                document.getElementById('historyTermName').innerText = data.term;
+                document.getElementById('historyTermInfo').innerHTML = `<p class="text-sm text-gray-600 leading-relaxed">${escapeHtml(data.definition || '暂无释义')}</p>`;
+                document.getElementById('historyUsageCount').innerText = "摘录记录 (0条)";
+                document.getElementById('historyUsageList').innerHTML = `<div class="text-center py-10 text-gray-300 text-xs italic">该词条暂无摘录记录</div>`;
+                document.getElementById('termHistoryModal').classList.remove('hidden');
+            }
+
+            function closeTermHistory() {
+                document.getElementById('termHistoryModal').classList.add('hidden');
+            }
+
+            function deleteCustomTerm(term) {
+                if (confirm(`确定要从积累本中移除 "${term}" 吗？`)) {
+                    customTerms = customTerms.filter(t => t.term !== term);
+                    renderLibraryVocabularyView();
+                }
+            }
+
+            function openAddTermModal(autoTerm = '', contextForAI = '') {
+                document.getElementById('newTermInput').value = autoTerm;
+                document.getElementById('newTermDef').value = '';
+                document.getElementById('addTermModal').classList.remove('hidden');
+
+                const aiBtn = document.getElementById('aiDefineBtn');
+                if (autoTerm && contextForAI && aiBtn) {
+                    // Keep reference to context
+                    aiBtn.dataset.term = autoTerm;
+                    aiBtn.dataset.context = contextForAI;
+                    aiBtn.classList.remove('hidden');
+                } else if (aiBtn) {
+                    aiBtn.classList.add('hidden');
+                }
+            }
+
+            async function fetchAIDefinition(btnElement) {
+                const term = btnElement.dataset.term;
+                const context = btnElement.dataset.context;
+                if (!term) return;
+
+                const originalText = btnElement.innerHTML;
+                btnElement.innerHTML = 'Generating...';
+                btnElement.disabled = true;
+
+                try {
+                    const response = await fetch('/api/define_term', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ term, context })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        document.getElementById('newTermDef').value = `${data.definition}\n\n例：${data.example}\n（${data.translation}）`;
+                        if (data.professional_upgrade) {
+                            btnElement.dataset.upgrade = JSON.stringify(data.professional_upgrade);
+                        }
+                    } else {
+                        alert("AI 释义生成失败");
+                    }
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    btnElement.innerHTML = originalText;
+                    btnElement.disabled = false;
+                }
+            }
+
+            function closeAddTermModal() {
+                document.getElementById('addTermModal').classList.add('hidden');
+            }
+
+            function saveCustomTerm() {
+                const term = document.getElementById('newTermInput').value.trim();
+                const def = document.getElementById('newTermDef').value.trim();
+                if (!term) {
+                    alert("请输入词汇");
+                    return;
+                }
+
+                const upgrade = document.getElementById('aiDefineBtn').dataset.upgrade;
+                customTerms.push({
+                    term,
+                    definition: def,
+                    upgrade: upgrade ? JSON.parse(upgrade) : null
+                });
+                closeAddTermModal();
+                renderLibraryVocabularyView();
+            }
+
+            function addTermToFlashcard(termStr, defStr) {
+                flashcards.push({
+                    id: Date.now(),
+                    scene: 'Dictionary',
+                    front: termStr,
+                    back: defStr,
+                    keywords: [termStr]
+                });
+                document.getElementById('reviewCount').innerText = flashcards.length;
+                // Removed alert for better UX, could do a toast if preferred.
+            }
+
+            let selectedDate = null;
+
+            function buildUnifiedTimelineItems() {
+                const polishItems = library.map(item => ({
+                    type: 'polish',
+                    id: item.id,
+                    created_at: item.created_at,
+                    data: item
+                }));
+                const vocabItems = vocabExcerpts.map(item => ({
+                    type: 'vocab',
+                    id: item.id,
+                    created_at: item.created_at,
+                    data: item
+                }));
+                return [...polishItems, ...vocabItems].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            }
+
+            function renderTimelineView() {
+                // Group by date
+                const dateCounts = {};
+                const recordsByDate = {};
+                const timelineItems = buildUnifiedTimelineItems();
+
+                timelineItems.forEach(item => {
+                    let d = item.created_at ? new Date(item.created_at) : new Date();
+                    if (isNaN(d.getTime())) d = new Date(); // fallback
+                    const dateStr = d.toISOString().split('T')[0];
+                    dateCounts[dateStr] = (dateCounts[dateStr] || 0) + 1;
+
+                    if (!recordsByDate[dateStr]) recordsByDate[dateStr] = [];
+                    recordsByDate[dateStr].push(item);
+                });
+
+                const heatmapContainer = document.getElementById('heatmapContainer');
+
+                // Generate heatmap grid (classic 7-row Github style)
+                let today = new Date();
+                let dayOfWeek = today.getDay(); // 0 is Sunday
+
+                // Show roughly 24 weeks (~半年)
+                const weeks = 24;
+                const totalDays = (weeks - 1) * 7 + (dayOfWeek + 1);
+
+                let html = '';
+                for (let i = totalDays - 1; i >= 0; i--) {
+                    let d = new Date(today);
+                    d.setDate(d.getDate() - i);
+                    const dateStr = d.toISOString().split('T')[0];
+                    const count = dateCounts[dateStr] || 0;
+
+                    let colorClass = 'bg-gray-100 border border-gray-200';
+                    if (count > 0 && count <= 2) colorClass = 'bg-[#c6e48b] border border-[#c6e48b]/50';
+                    else if (count > 2 && count <= 5) colorClass = 'bg-[#7bc96f]';
+                    else if (count > 5 && count <= 10) colorClass = 'bg-[#239a3b]';
+                    else if (count > 10) colorClass = 'bg-[#196127]';
+
+                    const isSelected = selectedDate === dateStr ? 'ring-2 ring-black ring-offset-1' : '';
+
+                    // Add month tooltip or standard title
+                    html += `<div onclick="selectTimelineDate('${dateStr}')" class="w-3 h-3 ${colorClass} ${isSelected} rounded-sm cursor-pointer hover:ring-1 hover:ring-black transition-all" title="${dateStr} : ${count} 次记录"></div>`;
+                }
+
+                heatmapContainer.innerHTML = html;
+
+                // Render selected date or all
+                renderTimelineRecords(selectedDate || 'all', recordsByDate);
+            }
+
+            function selectTimelineDate(dateStr) {
+                selectedDate = dateStr;
+                renderTimelineView();
+            }
+
+            function renderTimelineRecords(dateStr, recordsByDate) {
+                const container = document.getElementById('timelineContainer');
+                const title = document.getElementById('selectedDateTitle');
+
+                let displayRecords = [];
+                if (dateStr === 'all') {
+                    title.innerText = "全部记录 (All Records)";
+                    displayRecords = buildUnifiedTimelineItems();
+                } else {
+                    title.innerText = `${dateStr} 的记录`;
+                    displayRecords = recordsByDate[dateStr] || [];
+                }
+
+                if (displayRecords.length === 0) {
+                    container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10">该日期无记录</div>`;
+                    return;
+                }
+
+                container.innerHTML = displayRecords.map(item => {
+                    let timeStr = formatDateTime(item.created_at);
+
+                    if (item.type === 'polish') {
+                        const record = item.data;
+                        return `
+                    <div onclick="openTimelineDetail(${record.id})" class="p-8 border border-gray-100 rounded-3xl hover:border-black hover:shadow-xl hover:-translate-y-1 cursor-pointer transition-all group relative bg-white">
+                        <button onclick="openDeleteModal(${record.id}, event)" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-red-50 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all z-10" title="删除">
+                            ×
+                        </button>
+                        ${timeStr ? `<div class="absolute top-4 left-8 text-[10px] text-gray-300 font-mono">${timeStr}</div>` : ''}
+                        <div class="flex justify-between items-start mb-6 pt-4 pr-8">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-400">智能润色 · ${escapeHtml(record.scene || 'General')}</span>
+                            <div class="flex gap-2">
+                                ${record.tone ? `<span class="text-[10px] px-2 py-0.5 border border-gray-200 rounded text-gray-400">${escapeHtml(record.tone)}</span>` : ''}
+                                <span class="text-[10px] px-2 py-0.5 border border-gray-200 rounded text-gray-400">#${escapeHtml(record.intent || 'Communication')}</span>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-400 mb-1">Original:</p>
+                            <p class="text-lg font-light text-gray-600 italic line-clamp-2">"${escapeHtml(record.original || '')}"</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400 mb-1">Polished:</p>
+                            <p class="text-xl font-medium text-black line-clamp-2">"${escapeHtml(record.polished || record.alternative || '展开查看详情')}"</p>
+                        </div>
+                        ${record.explanation ? `<div class="mt-4 text-xs text-gray-400 border-t border-gray-100 pt-3 line-clamp-1">💡 ${escapeHtml(record.explanation)}</div>` : ''}
+                    </div>
+                `;
+                    }
+
+                    const record = item.data;
+                    const safeTerm = encodeURIComponent(record.term || '');
+                    const sentence = escapeHtml(record.context_sentence || extractSentenceForTerm(record.excerpt_text, record.term) || '-');
+                    const source = (record.source || '').trim();
+                    const sourceHtml = /^https?:\/\//i.test(source)
+                        ? `<a href="${escapeHtml(source)}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline break-all">${escapeHtml(source)}</a>`
+                        : escapeHtml(source || '未填写');
+                    return `
+                <div onclick="openTermHistoryFromTimeline('${safeTerm}')" class="p-8 border border-gray-100 rounded-3xl hover:border-black hover:shadow-xl hover:-translate-y-1 cursor-pointer transition-all bg-white">
+                    ${timeStr ? `<div class="text-[10px] text-gray-300 font-mono mb-3">${timeStr}</div>` : ''}
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-400">生词摘录</span>
+                        <span class="text-[10px] px-2 py-0.5 border border-gray-200 rounded text-gray-500">${escapeHtml(record.term || '-')}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 leading-relaxed italic line-clamp-3">"${sentence}"</p>
+                    <div class="mt-4 text-xs text-gray-500 border-t border-gray-100 pt-3">来源: ${sourceHtml}</div>
+                </div>
+            `;
+                }).join('');
+            }
+
+            function openTermHistoryFromTimeline(encodedTerm) {
+                const term = decodeURIComponent(encodedTerm || '');
+                openTermHistory(term);
+            }
+
+            function openTimelineDetail(id) {
+                const record = library.find(r => r.id === id);
+                if (!record) return;
+
+                document.getElementById('detailOriginal').innerText = `"${record.original}"`;
+                document.getElementById('detailPolished').innerText = `"${record.polished || record.polished_text || record.alternative}"`;
+
+                let meta = {};
+                try { meta = typeof record.meta_data === 'string' ? JSON.parse(record.meta_data) : (record.meta_data || {}); } catch (e) { }
+
+                // Strategic Coach
+                const coachEl = document.getElementById('detailStrategicCoach');
+                const sa = meta.full_analysis?.strategic_coach || record.strategic_coach;
+                if (sa) {
+                    coachEl.innerText = `💡 战略建议: ${sa}`;
+                    coachEl.classList.remove('hidden');
+                } else {
+                    coachEl.classList.add('hidden');
+                }
+
+                // Badges
+                const badgeEl = document.getElementById('detailBadges');
+                badgeEl.innerHTML = '';
+                const badges = meta.full_analysis?.mindset_badges || meta.mindset_badges || [];
+                badges.forEach(b => {
+                    badgeEl.innerHTML += `<span class="px-2 py-0.5 bg-gray-100 text-[8px] font-bold rounded uppercase tracking-widest text-gray-500">${b}</span>`;
+                });
+
+                // Structured Insights Parsing
+                const rawInsight = record.explanation || "No deep insights available for this record.";
+                const insightContainer = document.getElementById('detailInsightsContainer');
+                insightContainer.innerHTML = '';
+
+                // Simple parser for AI numbering patterns: 1) or 1.
+                const parts = rawInsight.split(/\d+[\.\)]/);
+                const overview = parts[0].trim();
+                const points = parts.slice(1).map(p => p.trim()).filter(p => p.length > 0);
+
+                if (overview) {
+                    insightContainer.innerHTML += `
+                    <div class="p-5 bg-blue-50/30 rounded-2xl border border-blue-100/50 text-sm text-gray-700 leading-relaxed">
+                        ${overview}
+                    </div>
+                `;
+                }
+
+                if (points.length > 0) {
+                    const listHtml = points.map((p, idx) => `
+                    <div class="flex gap-4 p-4 bg-gray-50/50 rounded-xl border border-gray-100 group hover:border-blue-200 transition-all">
+                        <span class="w-6 h-6 bg-white border border-gray-200 text-[10px] font-bold text-gray-400 rounded-full flex items-center justify-center shrink-0 group-hover:bg-blue-500 group-hover:text-white group-hover:border-blue-500 transition-colors">
+                            ${idx + 1}
+                        </span>
+                        <p class="text-xs text-gray-600 leading-relaxed">${p}</p>
+                    </div>
+                `).join('');
+
+                    insightContainer.innerHTML += `
+                    <div class="grid grid-cols-1 gap-3">
+                        ${listHtml}
+                    </div>
+                `;
+                } else if (!overview) {
+                    // Fallback for flat text
+                    insightContainer.innerHTML = `<div class="text-sm text-gray-500 italic">${rawInsight}</div>`;
+                }
+
+                // Tags
+                const tagsContainer = document.getElementById('detailTags');
+                tagsContainer.innerHTML = `
+                <span class="px-3 py-1 bg-black text-white text-[10px] rounded-full uppercase tracking-widest">${record.scene}</span>
+                <span class="px-3 py-1 bg-gray-100 text-gray-500 text-[10px] rounded-full uppercase tracking-widest">${record.tone || 'Neutral'}</span>
+                <span class="px-3 py-1 bg-blue-100 text-blue-600 text-[10px] rounded-full uppercase tracking-widest">Intent: ${record.intent}</span>
+            `;
+
+                // Meta keywords
+                let metaKeywords = {};
+                try { metaKeywords = typeof record.meta_data === 'string' ? JSON.parse(record.meta_data) : (record.meta_data || {}); } catch (e) { }
+                const kws = metaKeywords.keywords || [];
+                kws.forEach(kw => {
+                    tagsContainer.innerHTML += `<span class="px-3 py-1 bg-purple-50 text-purple-600 text-[10px] rounded-full ring-1 ring-purple-100"># ${kw}</span>`;
+                });
+
+                // Styles
+                const styleContainer = document.getElementById('detailStylesContainer');
+                const styleList = document.getElementById('detailStylesList');
+                const fullAnalysis = meta.full_analysis || {};
+                const options = fullAnalysis.polished_options || [];
+
+                if (options.length > 0) {
+                    styleContainer.classList.remove('hidden');
+                    styleList.innerHTML = options.map(opt => `
+                    <div class="p-4 rounded-2xl border border-gray-100 hover:border-black transition-all group">
+                        <div class="flex justify-between mb-2">
+                             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">${opt.style}</span>
+                             <button onclick="copyRawText('${opt.text.replace(/'/g, "\\'")}')" class="text-[10px] text-gray-400 hover:text-blue-500">Copy</button>
+                        </div>
+                        <p class="text-sm text-black leading-relaxed mb-2">${opt.text}</p>
+                        <p class="text-[10px] text-gray-400 italic">${opt.explanation}</p>
+                    </div>
+                `).join('');
+                } else {
+                    styleContainer.classList.add('hidden');
+                }
+
+                document.getElementById('timelineDetailModal').classList.remove('hidden');
+            }
+
+            function closeTimelineDetail() {
+                document.getElementById('timelineDetailModal').classList.add('hidden');
+            }
+
+            function copyRawText(text) {
+                navigator.clipboard.writeText(text);
+                // Optionally Toast
+            }
+
+            // --- Flashcard Logic ---
+
+            function addToFlashcard() {
+                // In MVP, we just add the current analysis to the local session list
+                // Ideally this would save to DB. For now, we simulate.
+                if (!currentAnalysis) return;
+
+                const rawInput = document.getElementById('rawInput').value;
+                const polished = currentAnalysis.polished_text || currentAnalysis.betterAlternative;
+                const keywords = currentAnalysis.key_phrases || currentAnalysis.keywords || [];
+                const scene = currentAnalysis.scene_tag || currentAnalysis.scene || "General";
+
+                const card = {
+                    id: Date.now(),
+                    scene: scene,
+                    front: rawInput,
+                    back: polished,
+                    keywords: keywords
+                };
+
+                flashcards.push(card);
+                alert("Added to Flashcards!");
+            }
+
+            function loadFlashcards() {
+                // For MVP, if we have library loaded, we can treat them as flashcards too
+                // Let's merge library items into flashcards for demo
+                if (library.length > 0 && flashcards.length === 0) {
+                    flashcards = library.map(item => ({
+                        id: item.id,
+                        scene: item.scene,
+                        front: item.original,
+                        back: item.polished || item.alternative,
+                        keywords: item.keywords
+                    }));
+                }
+
+                document.getElementById('reviewCount').innerText = flashcards.length;
+                if (flashcards.length > 0) {
+                    document.getElementById('flashcardContainer').classList.remove('hidden');
+                    document.getElementById('emptyState').classList.add('hidden');
+                    currentCardIndex = 0;
+                    renderFlashcard();
+                } else {
+                    document.getElementById('flashcardContainer').classList.add('hidden');
+                    document.getElementById('emptyState').classList.remove('hidden');
+                }
+            }
+
+            function renderFlashcard() {
+                if (currentCardIndex >= flashcards.length) {
+                    document.getElementById('flashcardContainer').classList.add('hidden');
+                    document.getElementById('emptyState').classList.remove('hidden');
+                    document.getElementById('reviewCount').innerText = 0;
+                    return;
+                }
+
+                const card = flashcards[currentCardIndex];
+                document.getElementById('cardScene').innerText = card.scene;
+                document.getElementById('cardFrontText').innerText = `"${card.front}"`;
+                document.getElementById('cardBackText').innerText = `"${card.back}"`;
+
+                const kwContainer = document.getElementById('cardKeywords');
+                kwContainer.innerHTML = '';
+                card.keywords.forEach(kw => {
+                    const span = document.createElement('span');
+                    span.className = 'px-2 py-1 bg-gray-800 text-white rounded text-[10px]';
+                    span.innerText = kw;
+                    kwContainer.appendChild(span);
+                });
+
+                // Reset flip
+                isFlipped = false;
+                document.getElementById('cardInner').classList.remove('rotate-y-180');
+                document.getElementById('reviewCount').innerText = flashcards.length - currentCardIndex;
+            }
+
+            function flipCard() {
+                isFlipped = !isFlipped;
+                const cardInner = document.getElementById('cardInner');
+                if (isFlipped) {
+                    cardInner.classList.add('rotate-y-180');
+                } else {
+                    cardInner.classList.remove('rotate-y-180');
+                }
+            }
+
+            function markReview(remembered) {
+                // Logic to handle spaced repetition (MVP: just next card)
+                // Prevent event propagation if button clicked
+                // But we handled stopPropagation in HTML
+
+                // Move to next card
+                currentCardIndex++;
+                renderFlashcard();
+            }
+
+            // --- Existing Modal & Auth Logic ---
+
+            function openDeleteModal(id, event) {
+                event.stopPropagation();
+                deleteTargetId = id;
+                document.getElementById('deleteModal').classList.remove('hidden');
+            }
+
+            function closeDeleteModal() {
+                deleteTargetId = null;
+                document.getElementById('deleteModal').classList.add('hidden');
+            }
+
+            async function confirmDelete() {
+                if (!deleteTargetId) return;
+
+                const btn = document.getElementById('confirmDeleteBtn');
+                const originalContent = btn.innerHTML;
+                btn.innerHTML = 'Deleting...';
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch(`/api/library/${deleteTargetId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error("Delete failed");
+                    }
+
+                    // Remove from local array
+                    library = library.filter(item => item.id !== deleteTargetId);
+                    renderLibrary();
+                    closeDeleteModal();
+
+                } catch (error) {
+                    console.error("Delete error:", error);
+                    alert("删除失败，请重试");
+                } finally {
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                }
+            }
+
+            // Auth Logic
+            let isLoginMode = true;
+            let currentUser = null;
+            let isDebugMode = false;
+
+            // --- Text Selection & Manual Extraction ---
+            document.addEventListener('mouseup', handleTextSelection);
+
+            function handleTextSelection(e) {
+                const selection = window.getSelection();
+                const selectedText = selection.toString().trim();
+                const tooltip = document.getElementById('textSelectionTooltip');
+
+                // Only show tooltip if text is selected inside a result or detail modal
+                const isRelevantArea = e.target.closest('#resOptionsContainer') || e.target.closest('#timelineDetailModal');
+
+                if (selectedText && isRelevantArea) {
+                    const range = selection.getRangeAt(0);
+                    const rect = range.getBoundingClientRect();
+                    const contextArea = e.target.closest('.rounded-2xl') || e.target.closest('#timelineDetailModal');
+                    const context = contextArea ? contextArea.innerText : '';
+
+                    tooltip.style.left = `${rect.left + rect.width / 2}px`;
+                    tooltip.style.top = `${rect.top}px`;
+                    tooltip.classList.remove('hidden');
+                    tooltip.dataset.selectedTerm = selectedText;
+                    tooltip.dataset.selectedContext = context;
+                } else {
+                    tooltip.classList.add('hidden');
+                }
+            }
+            function toggleDebugMode() {
+                isDebugMode = !isDebugMode;
+                const btn = document.getElementById('debugModeBtn');
+                if (isDebugMode) {
+                    btn.innerText = "Debug: ON";
+                    btn.classList.add('bg-green-500', 'text-white');
+                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+
+                    // Login as demo user automatically
+                    currentUser = {
+                        id: 1,
+                        email: "demo@worklingo.com",
+                        name: "Demo User (Debug)"
+                    };
+                    localStorage.setItem('worklingo_user', JSON.stringify(currentUser));
+                    updateUserInterface(currentUser);
+                    loadLibrary();
+                    showSection('import');
+                    // Removed alert to make it smoother
+                } else {
+                    btn.innerText = "Debug: OFF";
+                    btn.classList.remove('bg-green-500', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+
+                    // Logout
+                    currentUser = null;
+                    localStorage.removeItem('worklingo_user');
+                    updateUserInterface(null);
+                    showSection('home');
+                }
+            }
+
+            let isAIMode = false;
+            async function toggleAIMode() {
+                isAIMode = !isAIMode;
+                const btn = document.getElementById('aiModeBtn');
+                btn.innerText = 'Switching...';
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/api/ai_mode', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ enabled: isAIMode })
+                    });
+                    const data = await res.json();
+                    isAIMode = data.ai_mode;
+                } catch (e) {
+                    console.error('Failed to toggle AI mode', e);
+                    isAIMode = !isAIMode; // revert
+                }
+
+                if (isAIMode) {
+                    btn.innerText = 'AI: ON';
+                    btn.classList.add('bg-purple-600', 'text-white');
+                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+                } else {
+                    btn.innerText = 'AI: OFF';
+                    btn.classList.remove('bg-purple-600', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                }
+                btn.disabled = false;
+            }
+
+            function toggleAuthMode() {
+                isLoginMode = !isLoginMode;
+                document.getElementById('authTitle').innerText = isLoginMode ? "Welcome Back" : "Join Worklingo";
+                document.getElementById('authBtn').innerText = isLoginMode ? "Sign In" : "Create Account";
+                document.getElementById('authSwitchText').innerText = isLoginMode ? "Don't have an account?" : "Already have an account?";
+                document.getElementById('authToggleLink').innerText = isLoginMode ? "Create one" : "Sign In";
+            }
+
+            async function handleAuth() {
+                const email = document.getElementById('authEmail').value;
+                const password = document.getElementById('authPassword').value;
+                const btn = document.getElementById('authBtn');
+                const originalText = btn.innerText;
+
+                if (!email || !password) {
+                    alert("Please enter both email and password");
+                    return;
+                }
+
+                btn.disabled = true;
+                btn.innerText = "Processing...";
+
+                try {
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        currentUser = data.user;
+                        localStorage.setItem('worklingo_user', JSON.stringify(currentUser));
+
+                        updateUserInterface(currentUser);
+
+                        showSection('home');
+                        // Removed alert("Login Successful!"); for better UX
+                    } else {
+                        alert(data.error || "Login failed");
+                    }
+                } catch (e) {
+                    console.error("Login error", e);
+                    alert("Login error: " + e.message);
+                } finally {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            }
+
+            function updateUserInterface(user) {
+                const navBtn = document.getElementById('navLoginBtn');
+                if (user) {
+                    navBtn.innerText = user.name;
+                    // Optional: click to logout
+                    navBtn.onclick = () => {
+                        if (confirm("Log out?")) {
+                            localStorage.removeItem('worklingo_user');
+                            location.reload();
+                        }
+                    };
                     navBtn.classList.remove('bg-black', 'text-white');
                     navBtn.classList.add('text-black', 'font-bold');
-                    
-                    showSection('home');
-                    alert("Login Successful!");
                 } else {
-                    alert(data.error || "Login failed");
+                    navBtn.innerText = "登录";
+                    navBtn.onclick = () => showSection('auth');
+                    navBtn.classList.add('bg-black', 'text-white');
+                    navBtn.classList.remove('text-black', 'font-bold');
                 }
-            } catch (e) {
-                console.error("Login error", e);
-                alert("Login error: " + e.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = originalText;
             }
-        }
 
-        function checkAuthAndStart() {
-            if (currentUser) {
-                showSection('import');
-            } else {
-                alert("Please login first to build your corpus.");
-                showSection('auth');
+            function checkAuthAndStart() {
+                if (currentUser) {
+                    showSection('import');
+                } else {
+                    alert("Please login first to build your corpus.");
+                    showSection('auth');
+                }
             }
-        }
 
-        // Initialize view
-        window.onload = () => {
-            showSection('home');
-            loadLibrary(); // Load from DB on start
-        };
-    </script>
+            // Initialize view
+            window.onload = () => {
+                // Check for saved user session
+                const savedUser = localStorage.getItem('worklingo_user');
+                if (savedUser) {
+                    currentUser = JSON.parse(savedUser);
+                    updateUserInterface(currentUser);
+                }
+
+                showSection('home');
+                loadLibrary(); // Load from DB on start
+                loadVocabularyExcerpts();
+
+                // Add keyboard shortcut support for Select All in textarea
+                const rawInput = document.getElementById('rawInput');
+                if (rawInput) {
+                    rawInput.addEventListener('keydown', function (e) {
+                        // Check for Ctrl+A or Cmd+A
+                        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
+                            e.preventDefault();
+                            this.select();
+                        }
+                    });
+                }
+
+                // Setup text selection listener for "Highlight to Add" feature
+                document.addEventListener('selectionchange', () => {
+                    const selection = window.getSelection();
+                    const text = selection.toString().trim();
+                    const tooltip = document.getElementById('textSelectionTooltip');
+                    const resultSection = document.getElementById('resOptionsContainer');
+                    const detailSection = document.getElementById('timelineDetailModal');
+
+                    // Show floating button only if text is highlighted inside the result options container
+                    const inResult = resultSection && resultSection.contains(selection.anchorNode);
+                    const inDetail = detailSection && detailSection.contains(selection.anchorNode);
+                    if (text.length > 0 && text.length < 60 && (inResult || inDetail)) {
+                        const range = selection.getRangeAt(0);
+                        const rect = range.getBoundingClientRect();
+
+                        tooltip.style.left = `${rect.left + rect.width / 2}px`;
+                        tooltip.style.top = `${rect.top}px`;
+                        tooltip.classList.remove('hidden');
+                    } else {
+                        tooltip.classList.add('hidden');
+                    }
+                });
+
+                // Handle clicking the tooltip
+                document.getElementById('textSelectionTooltip').addEventListener('mousedown', (e) => {
+                    e.preventDefault(); // Prevent text from un-selecting
+                    const tooltip = document.getElementById('textSelectionTooltip');
+                    const text = (tooltip.dataset.selectedTerm || window.getSelection().toString().trim() || '').trim();
+                    if (!text) return;
+
+                    const contextText = tooltip.dataset.selectedContext || document.getElementById('rawInput').value.trim();
+
+                    prefillVocabularyCapture(text, contextText);
+                    tooltip.classList.add('hidden');
+                    tooltip.dataset.selectedTerm = '';
+                    tooltip.dataset.selectedContext = '';
+                });
+
+                // Excerpt module interactions
+                const excerptInput = document.getElementById('excerptInputText');
+                const excerptTerm = document.getElementById('excerptMarkedTerm');
+
+                const syncSelectedTermInExcerpt = () => {
+                    if (!excerptInput || !excerptTerm) return;
+                    const start = excerptInput.selectionStart;
+                    const end = excerptInput.selectionEnd;
+                    if (end > start) {
+                        const selected = excerptInput.value.slice(start, end).trim();
+                        if (selected) {
+                            excerptTerm.value = selected;
+                        }
+                    }
+                    updateExcerptSentencePreview();
+                };
+
+                if (excerptInput) {
+                    excerptInput.addEventListener('select', syncSelectedTermInExcerpt);
+                    excerptInput.addEventListener('mouseup', syncSelectedTermInExcerpt);
+                    excerptInput.addEventListener('keyup', syncSelectedTermInExcerpt);
+                    excerptInput.addEventListener('input', updateExcerptSentencePreview);
+                }
+                if (excerptTerm) {
+                    excerptTerm.addEventListener('input', updateExcerptSentencePreview);
+                }
+            };
+        </script>
 </body>
+
 </html>
